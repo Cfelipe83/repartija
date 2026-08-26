@@ -25,13 +25,14 @@
     }
   </script>
   <style>
-    .avoid-page-break {
-      page-break-inside: avoid;
+    /* Clase segura para evitar que los elementos se partan a la mitad entre hojas */
+    .avoid-break {
       break-inside: avoid;
+      page-break-inside: avoid;
     }
   </style>
 </head>
-<body class="bg-albion-dark text-gray-200 min-h-screen font-sans flex flex-col items-center">
+<body class="bg-albion-dark text-gray-200 min-h-screen font-sans flex flex-col">
 
   <div class="max-w-7xl mx-auto w-full px-4 pt-6 flex flex-wrap justify-end gap-3 no-pdf">
     <button onclick="copyToDiscord()" class="bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition">
@@ -42,9 +43,9 @@
     </button>
   </div>
 
-  <div id="pdf-content" class="bg-albion-dark pb-8 mt-4 w-full">
+  <div id="pdf-content" class="bg-albion-dark pb-8 mt-4">
     
-    <header class="border-b border-albion-border bg-albion-card/80 py-6 mb-6">
+    <header class="border-b border-albion-border bg-albion-card/80 py-6 mb-6 avoid-break">
       <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
         <input type="text" id="activityName" placeholder="Nombre de la actividad (Ej: Roaming ZN)" 
                class="text-2xl md:text-3xl font-extrabold text-albion-gold tracking-wide uppercase bg-transparent text-center border-b border-dashed border-gray-600 focus:outline-none focus:border-albion-gold w-full max-w-2xl placeholder-gray-500 mb-2">
@@ -59,7 +60,7 @@
       
       <div class="xl:col-span-8 space-y-6">
         
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-page-break">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-break">
           <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">💰 Economía General</h2>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -80,7 +81,7 @@
           </div>
         </section>
 
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg overflow-x-auto avoid-page-break">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg overflow-x-auto avoid-break">
           <div class="flex justify-between items-center mb-4 min-w-[700px]">
             <h2 class="text-xl font-bold text-white flex items-center gap-2">🛡️ Lista de Participantes</h2>
             <button onclick="addPlayer()" class="no-pdf bg-albion-accent hover:bg-amber-600 text-white text-sm font-bold py-1.5 px-4 rounded transition">
@@ -101,7 +102,7 @@
           </div>
         </section>
 
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-page-break">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
           <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">🖼️ Capturas de Respaldo</h2>
           <label id="uploadBtn" class="no-pdf border-2 border-dashed border-albion-border hover:border-albion-gold rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer transition-colors bg-albion-dark/50 mb-4">
             <span class="text-sm text-gray-300 text-center">Haz clic para añadir capturas</span>
@@ -113,7 +114,7 @@
       </div>
 
       <div class="xl:col-span-4 space-y-6">
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-gold/40 shadow-xl relative overflow-hidden avoid-page-break">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-gold/40 shadow-xl relative overflow-hidden avoid-break">
           <h2 class="text-xl font-bold text-white mb-6">Resumen Financiero</h2>
           <div class="space-y-3 text-sm">
             <div class="flex justify-between pb-2 border-b border-albion-border">
@@ -139,7 +140,7 @@
           </div>
         </section>
 
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-page-break">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-break">
           <h3 class="text-lg font-bold text-white mb-4 border-b border-albion-border pb-2">📋 Pagos Finales</h3>
           <div id="payoutList" class="space-y-2 text-sm max-h-none">
             <!-- JS Inject -->
@@ -311,7 +312,7 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           const card = document.createElement('div');
-          card.className = 'relative border border-albion-border rounded p-1 bg-black avoid-page-break';
+          card.className = 'relative border border-albion-border rounded p-1 bg-black avoid-break';
           card.innerHTML = `
             <img src="${e.target.result}" class="w-full h-auto rounded object-contain">
             <button onclick="this.parentElement.remove()" class="no-pdf absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition">✕</button>
@@ -323,6 +324,9 @@
     }
 
     function downloadPDF() {
+      // 1. Forzar el scroll arriba de todo antes de capturar soluciona la pantalla negra.
+      window.scrollTo(0, 0);
+
       const actName = document.getElementById('activityName').value || 'Reparto';
       const actDate = document.getElementById('activityDate').value;
       
@@ -330,12 +334,6 @@
       hideElements.forEach(el => el.style.display = 'none');
       
       const element = document.getElementById('pdf-content');
-      
-      // FORZAR ANCHO: Esto soluciona que las columnas se aplasten en pantallas pequeñas
-      const originalWidth = element.style.width;
-      const originalMaxWidth = element.style.maxWidth;
-      element.style.width = '1200px';
-      element.style.maxWidth = '1200px';
       
       const opt = {
         margin:       10, // mm
@@ -345,19 +343,14 @@
           scale: 2, 
           useCORS: true, 
           backgroundColor: '#121418',
-          scrollY: 0,  // <-- ESTA ES LA SOLUCIÓN AL BUG DE LA PANTALLA NEGRA
-          scrollX: 0,
-          windowWidth: 1200 
+          scrollY: 0,
+          windowWidth: 1200 // Esto fuerza el ancho sin romper el layout
         },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak:    { mode: 'avoid-all' }
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
       html2pdf().set(opt).from(element).save().then(() => {
-        // Restauramos los valores originales después de descargar el PDF
         hideElements.forEach(el => el.style.display = '');
-        element.style.width = originalWidth;
-        element.style.maxWidth = originalMaxWidth;
       });
     }
 
