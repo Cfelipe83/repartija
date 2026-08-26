@@ -242,7 +242,6 @@
       font-size: 0.7rem;
     }
 
-    /* Modales */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -396,7 +395,7 @@
         </div>
       </div>
 
-      <!-- 1. GESTIÓN DE COFRES (Múltiples entradas) -->
+      <!-- 1. GESTIÓN DE COFRES -->
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
           <h2>1. Botín por Cofres / Drops</h2>
@@ -406,9 +405,11 @@
           <table>
             <thead>
               <tr>
-                <th>Identificador / Nombre del Cofre</th>
-                <th>Botín / Silver Estimado</th>
-                <th>Costo Reparaciones (Silver)</th>
+                <th>Cofre / Identificador</th>
+                <th>Botín Estimado (Silver)</th>
+                <th>Tax Mercado (%)</th>
+                <th>Reparaciones (Silver)</th>
+                <th>Neto Aportado</th>
                 <th>Acción</th>
               </tr>
             </thead>
@@ -445,8 +446,12 @@
         <h2>3. Resumen Financiero Consolidado</h2>
         <div class="summary-metrics">
           <div class="metric-box">
-            <div class="metric-title">Total Botín Bruto (Cofres)</div>
+            <div class="metric-title">Botín Bruto Total</div>
             <div class="metric-value" id="disp-total-loot">0</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-title">Tarifas Mercado Totales</div>
+            <div class="metric-value" id="disp-total-market-tax">0</div>
           </div>
           <div class="metric-box">
             <div class="metric-title">Reparaciones Totales</div>
@@ -459,10 +464,6 @@
           <div class="metric-box">
             <div class="metric-title">Fondo Total Re-equipos</div>
             <div class="metric-value" id="disp-regear-pool">0</div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-title">Total Neto a Repartir</div>
-            <div class="metric-value" id="disp-distributable">0</div>
           </div>
           <div class="metric-box">
             <div class="metric-title">Corte Base por Jugador</div>
@@ -543,7 +544,7 @@
 
 </div>
 
-<!-- PLANTILLA FORMAL PARA PDF -->
+<!-- PLANTILLA PARA PDF -->
 <div id="pdf-printable-doc">
   <div class="pdf-header">
     <div>
@@ -555,13 +556,15 @@
     </div>
   </div>
 
-  <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;">Desglose de Cofres Registrados</div>
+  <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;">Desglose de Cofres y Deducciones de Mercado</div>
   <table class="pdf-table">
     <thead>
       <tr>
         <th>Cofre / Drop</th>
-        <th>Botín Silver</th>
+        <th>Botín Bruto</th>
+        <th>Tax Market</th>
         <th>Reparaciones</th>
+        <th>Neto Aportado</th>
       </tr>
     </thead>
     <tbody id="pdf-chest-rows"></tbody>
@@ -574,7 +577,7 @@
       <div style="font-size: 11pt; font-weight: bold; color: #fff; margin-top: 2px;" id="pdf-gross-loot">0</div>
     </div>
     <div class="pdf-metric-card">
-      <div style="font-size: 7.5pt; color: var(--text-muted);">REPARACIONES / TAX</div>
+      <div style="font-size: 7.5pt; color: var(--text-muted);">MARKET + REP + TAX</div>
       <div style="font-size: 11pt; font-weight: bold; color: var(--warning); margin-top: 2px;" id="pdf-deductions">0</div>
     </div>
     <div class="pdf-metric-card">
@@ -658,7 +661,6 @@
     }
   }
 
-  // Persistencia
   function saveCurrentState() {
     const state = {
       partyName: document.getElementById('party-name').value,
@@ -684,7 +686,7 @@
     const raw = localStorage.getItem(CURRENT_STATE_KEY);
     if (!raw) {
       document.getElementById('party-date').valueAsDate = new Date();
-      addChest("Cofre 1");
+      addChest("Cofre 1", 4);
       addPlayer("Jugador 1");
       return;
     }
@@ -698,7 +700,7 @@
       players = state.players && state.players.length > 0 ? state.players : [];
       evidenceImages = state.evidenceImages || [];
 
-      if (chests.length === 0) addChest("Cofre 1");
+      if (chests.length === 0) addChest("Cofre 1", 4);
       if (players.length === 0) addPlayer("Jugador 1");
 
       renderChestsTable();
@@ -706,7 +708,7 @@
       renderGallery();
       calculateAll();
     } catch (e) {
-      addChest("Cofre 1");
+      addChest("Cofre 1", 4);
       addPlayer("Jugador 1");
     }
   }
@@ -719,18 +721,19 @@
     document.getElementById('guild-tax').value = 0;
     document.getElementById('party-name').value = "Gank / Roaming Session";
     document.getElementById('party-date').valueAsDate = new Date();
-    addChest("Cofre 1");
+    addChest("Cofre 1", 4);
     addPlayer("Jugador 1");
     saveCurrentState();
   }
 
-  // Gestión de Cofres
-  function addChest(defaultName = "") {
+  // Gestión de Cofres con Market Tax
+  function addChest(defaultName = "", defaultMarketTax = 4) {
     const id = Date.now() + Math.random().toString(36).substr(2, 4);
     chests.push({
       id: id,
       name: defaultName || `Cofre ${chests.length + 1}`,
       loot: 0,
+      marketTax: defaultMarketTax,
       repairs: 0
     });
     renderChestsTable();
@@ -753,7 +756,7 @@
     const chest = chests.find(c => c.id === id);
     if (!chest) return;
 
-    if (field === 'loot' || field === 'repairs') {
+    if (field === 'loot' || field === 'repairs' || field === 'marketTax') {
       chest[field] = sanitize(value);
     } else {
       chest[field] = value;
@@ -767,11 +770,17 @@
     tbody.innerHTML = "";
 
     chests.forEach(c => {
+      const taxPercent = Math.min(100, sanitize(c.marketTax || 0));
+      const marketTaxAmount = (c.loot * taxPercent) / 100;
+      const netFromChest = Math.max(0, c.loot - marketTaxAmount - c.repairs);
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><input type="text" class="table-input" value="${c.name}" placeholder="Ej: Cofre Avalon / Botín 1" oninput="updateChestField('${c.id}', 'name', this.value)"></td>
+        <td><input type="text" class="table-input" value="${c.name}" placeholder="Ej: Cofre Avalon" oninput="updateChestField('${c.id}', 'name', this.value)"></td>
         <td><input type="number" class="table-input" min="0" value="${c.loot || ''}" placeholder="0" oninput="updateChestField('${c.id}', 'loot', this.value)"></td>
+        <td><input type="number" class="table-input" min="0" max="100" value="${c.marketTax !== undefined ? c.marketTax : 4}" placeholder="4" oninput="updateChestField('${c.id}', 'marketTax', this.value)"></td>
         <td><input type="number" class="table-input" min="0" value="${c.repairs || ''}" placeholder="0" oninput="updateChestField('${c.id}', 'repairs', this.value)"></td>
+        <td style="font-weight: bold; color: var(--gold);">${formatSilver(netFromChest)}</td>
         <td><button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="removeChest('${c.id}')">Eliminar</button></td>
       `;
       tbody.appendChild(tr);
@@ -852,16 +861,21 @@
     saveCurrentState();
   });
 
-  // Cálculo consolidado de Cofres y Jugadores
+  // Cálculo de toda la economía
   function calculateAll() {
-    const totalLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    const totalGrossLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    const totalMarketTax = chests.reduce((sum, c) => sum + (c.loot * (Math.min(100, sanitize(c.marketTax || 0)) / 100)), 0);
     const totalRepairs = chests.reduce((sum, c) => sum + c.repairs, 0);
-    const taxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
-
-    const totalRegearPool = players.reduce((sum, p) => sum + p.regear, 0);
-    const taxAmount = (totalLoot * taxPercent) / 100;
     
-    const rawNet = totalLoot - totalRepairs - taxAmount - totalRegearPool;
+    // El neto tras gastos de venta y reparación
+    const postMarketAndRepairsLoot = Math.max(0, totalGrossLoot - totalMarketTax - totalRepairs);
+
+    const guildTaxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
+    const guildTaxAmount = (postMarketAndRepairsLoot * guildTaxPercent) / 100;
+    
+    const totalRegearPool = players.reduce((sum, p) => sum + p.regear, 0);
+
+    const rawNet = postMarketAndRepairsLoot - guildTaxAmount - totalRegearPool;
     const distributableNet = Math.max(0, rawNet);
     const totalPlayersCount = players.length;
     const baseSplit = totalPlayersCount > 0 ? distributableNet / totalPlayersCount : 0;
@@ -874,9 +888,10 @@
       alertBox.style.display = "none";
     }
 
-    document.getElementById('disp-total-loot').innerText = formatSilver(totalLoot);
+    document.getElementById('disp-total-loot').innerText = formatSilver(totalGrossLoot);
+    document.getElementById('disp-total-market-tax').innerText = formatSilver(totalMarketTax);
     document.getElementById('disp-total-repairs').innerText = formatSilver(totalRepairs);
-    document.getElementById('disp-tax').innerText = formatSilver(taxAmount);
+    document.getElementById('disp-tax').innerText = formatSilver(guildTaxAmount);
     document.getElementById('disp-regear-pool').innerText = formatSilver(totalRegearPool);
     document.getElementById('disp-distributable').innerText = formatSilver(distributableNet);
     document.getElementById('disp-base-split').innerText = formatSilver(baseSplit);
@@ -912,12 +927,15 @@
   function commitSessionToLedger() {
     const activity = document.getElementById('party-name').value || 'Reparto';
     const date = document.getElementById('party-date').value;
-    const totalLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    
+    const totalGrossLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    const totalMarketTax = chests.reduce((sum, c) => sum + (c.loot * (Math.min(100, sanitize(c.marketTax || 0)) / 100)), 0);
     const totalRepairs = chests.reduce((sum, c) => sum + c.repairs, 0);
-    const taxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
-    const taxAmount = (totalLoot * taxPercent) / 100;
+    const postLoot = Math.max(0, totalGrossLoot - totalMarketTax - totalRepairs);
+    const guildTaxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
+    const guildTaxAmount = (postLoot * guildTaxPercent) / 100;
     const totalRegear = players.reduce((sum, p) => sum + p.regear, 0);
-    const distributableNet = Math.max(0, totalLoot - totalRepairs - taxAmount - totalRegear);
+    const distributableNet = Math.max(0, postLoot - guildTaxAmount - totalRegear);
     const baseSplit = players.length > 0 ? distributableNet / players.length : 0;
 
     const sessionData = {
@@ -925,7 +943,7 @@
       name: activity,
       date: date,
       baseSplit: baseSplit,
-      chestsSummary: chests.map(c => ({ name: c.name, loot: c.loot, repairs: c.repairs })),
+      chestsSummary: chests.map(c => ({ name: c.name, loot: c.loot, marketTax: c.marketTax, repairs: c.repairs })),
       players: players.map(p => ({
         name: (p.name || "Sin nombre").trim(),
         balance: baseSplit + p.regear - p.buyout,
@@ -1151,18 +1169,22 @@
   function copyDiscordMarkdown() {
     const activity = document.getElementById('party-name').value || 'Reparto';
     const date = document.getElementById('party-date').value;
-    const totalLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    const totalGrossLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    const totalMarketTax = chests.reduce((sum, c) => sum + (c.loot * (Math.min(100, sanitize(c.marketTax || 0)) / 100)), 0);
     const totalRepairs = chests.reduce((sum, c) => sum + c.repairs, 0);
     const baseSplit = document.getElementById('disp-base-split').innerText;
 
     let md = `📦 **REPARTO DE BOTÍN: ${activity.toUpperCase()}** (${date})\n`;
-    md += `💰 **Total Botín (${chests.length} cofres):** \`${formatSilver(totalLoot)} Silver\`\n`;
+    md += `💰 **Botín Bruto (${chests.length} cofres):** \`${formatSilver(totalGrossLoot)} Silver\`\n`;
+    md += `🏷️ **Impuesto de Mercado Total:** \`${formatSilver(totalMarketTax)} Silver\`\n`;
     md += `🛠️ **Reparaciones Totales:** \`${formatSilver(totalRepairs)} Silver\`\n`;
     md += `⚖️ **Corte Base:** \`${baseSplit} Silver / persona\`\n\n`;
     
     md += `**Desglose de Cofres:**\n`;
     chests.forEach(c => {
-      md += `* ${c.name}: ${formatSilver(c.loot)} Silver (Rep: ${formatSilver(c.repairs)})\n`;
+      const mTaxVal = (c.loot * (Math.min(100, sanitize(c.marketTax || 0)) / 100));
+      const netC = Math.max(0, c.loot - mTaxVal - c.repairs);
+      md += `* **${c.name}**: ${formatSilver(c.loot)} (Tax: ${c.marketTax}% | Rep: ${formatSilver(c.repairs)}) -> **Neto: ${formatSilver(netC)}**\n`;
     });
 
     md += `\n**Desglose de Pagos:**\n\`\`\`diff\n`;
@@ -1194,18 +1216,22 @@
   function exportPDF() {
     const partyName = document.getElementById('party-name').value || 'Reparto';
     const partyDate = document.getElementById('party-date').value;
-    const totalLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    
+    const totalGrossLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    const totalMarketTax = chests.reduce((sum, c) => sum + (c.loot * (Math.min(100, sanitize(c.marketTax || 0)) / 100)), 0);
     const totalRepairs = chests.reduce((sum, c) => sum + c.repairs, 0);
-    const taxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
-    const taxAmount = (totalLoot * taxPercent) / 100;
+    const postLoot = Math.max(0, totalGrossLoot - totalMarketTax - totalRepairs);
+
+    const guildTaxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
+    const guildTaxAmount = (postLoot * guildTaxPercent) / 100;
     const totalRegear = players.reduce((sum, p) => sum + p.regear, 0);
-    const distributableNet = Math.max(0, totalLoot - totalRepairs - taxAmount - totalRegear);
+    const distributableNet = Math.max(0, postLoot - guildTaxAmount - totalRegear);
     const baseSplit = players.length > 0 ? distributableNet / players.length : 0;
 
     document.getElementById('pdf-title').innerText = `LIQUIDACIÓN: ${partyName.toUpperCase()}`;
     document.getElementById('pdf-date-val').innerText = partyDate;
-    document.getElementById('pdf-gross-loot').innerText = formatSilver(totalLoot);
-    document.getElementById('pdf-deductions').innerText = `${formatSilver(totalRepairs + taxAmount)} (${taxPercent}% Tax)`;
+    document.getElementById('pdf-gross-loot').innerText = formatSilver(totalGrossLoot);
+    document.getElementById('pdf-deductions').innerText = `${formatSilver(totalMarketTax + totalRepairs + guildTaxAmount)}`;
     document.getElementById('pdf-regear-total').innerText = formatSilver(totalRegear);
     document.getElementById('pdf-base-cut').innerText = formatSilver(baseSplit);
 
@@ -1213,11 +1239,17 @@
     const pdfChestBody = document.getElementById('pdf-chest-rows');
     pdfChestBody.innerHTML = "";
     chests.forEach(c => {
+      const taxPercent = Math.min(100, sanitize(c.marketTax || 0));
+      const marketTaxAmount = (c.loot * taxPercent) / 100;
+      const netFromChest = Math.max(0, c.loot - marketTaxAmount - c.repairs);
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="color:#fff;"><strong>${c.name}</strong></td>
         <td>${formatSilver(c.loot)} Silver</td>
-        <td style="color: var(--warning);">${formatSilver(c.repairs)} Silver</td>
+        <td style="color: var(--warning);">${c.marketTax}% (${formatSilver(marketTaxAmount)})</td>
+        <td style="color: var(--danger);">${formatSilver(c.repairs)} Silver</td>
+        <td style="color: var(--gold); font-weight: bold;">${formatSilver(netFromChest)} Silver</td>
       `;
       pdfChestBody.appendChild(tr);
     });
