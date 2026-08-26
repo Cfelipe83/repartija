@@ -1,7 +1,7 @@
 import { formatSilver, saveState, LEDGER_KEY } from './storage.js';
 import { exportPDFDocument } from './pdf.js';
 
-export function renderLedgerView(ledgerSessions, onTogglePayment, onDeleteSession) {
+export function renderLedgerView(ledgerSessions) {
   // 1. Balance Consolidado
   const consolidated = {};
 
@@ -43,7 +43,7 @@ export function renderLedgerView(ledgerSessions, onTogglePayment, onDeleteSessio
     }
   }
 
-  // 2. Historial de Partys Guardadas con Botón de Imprimir
+  // 2. Historial de Partys Guardadas
   const sessContainer = document.getElementById('ledger-sessions-container');
   if (!sessContainer) return;
   sessContainer.innerHTML = "";
@@ -106,12 +106,14 @@ export function renderLedgerView(ledgerSessions, onTogglePayment, onDeleteSessio
         </div>
       </div>
 
+      <!-- Métricas de Auditoría: Se incluye Total Neto a Repartir -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 12px; background: rgba(0,0,0,0.25); padding: 10px; border-radius: 4px;">
         <div><div style="font-size: 0.7rem; color: var(--text-muted);">BOTÍN BRUTO</div><strong style="font-size: 0.85rem; color:#fff;">${formatSilver(t.grossLoot || 0)}</strong></div>
         <div><div style="font-size: 0.7rem; color: var(--text-muted);">MARKET TAX</div><strong style="font-size: 0.85rem; color:var(--warning);">${formatSilver(t.marketTax || 0)}</strong></div>
         <div><div style="font-size: 0.7rem; color: var(--text-muted);">REPARACIONES</div><strong style="font-size: 0.85rem; color:var(--danger);">${formatSilver(t.repairs || 0)}</strong></div>
         <div><div style="font-size: 0.7rem; color: var(--text-muted);">IMP. GREMIO</div><strong style="font-size: 0.85rem; color:var(--warning);">${formatSilver(t.guildTax || 0)}</strong></div>
         <div><div style="font-size: 0.7rem; color: var(--text-muted);">RE-EQUIPOS</div><strong style="font-size: 0.85rem; color:var(--primary-hover);">${formatSilver(t.regearPool || 0)}</strong></div>
+        <div><div style="font-size: 0.7rem; color: var(--text-muted);">NETO A REPARTIR</div><strong style="font-size: 0.85rem; color:var(--success);">${formatSilver(t.distributableNet || 0)}</strong></div>
         <div><div style="font-size: 0.7rem; color: var(--text-muted);">CORTE BASE</div><strong style="font-size: 0.85rem; color:var(--gold);">${formatSilver(t.baseSplit || 0)}</strong></div>
       </div>
 
