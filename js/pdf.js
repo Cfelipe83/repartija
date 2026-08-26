@@ -42,7 +42,7 @@ export function exportPDFDocument(sessionData) {
         : (p.balance < 0 ? `<span class="pdf-badge pdf-badge-red">DEBE ${formatSilver(Math.abs(p.balance))}</span>` : `<span class="pdf-badge" style="background:#333;color:#aaa;">0</span>`);
 
       tr.innerHTML = `
-        <td style="color:#fff;"><strong>${p.name || 'Sin nombre'}</strong></td>
+        <td><strong class="pdf-player-name">${p.name || 'Sin nombre'}</strong></td>
         <td>${formatSilver(t.baseSplit)}</td>
         <td style="color: #85e89d;">${(p.regear || 0) > 0 ? '+' + formatSilver(p.regear) : '-'}</td>
         <td style="color: var(--gold);">${(p.refundRepairs || 0) > 0 ? '+' + formatSilver(p.refundRepairs) : '-'}</td>
