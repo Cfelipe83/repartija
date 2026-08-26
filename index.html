@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Albion Online - Payouts Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Usamos la librería en su versión estable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     tailwind.config = {
@@ -25,15 +26,18 @@
     }
   </script>
   <style>
-    /* Clase segura para evitar que los elementos se partan a la mitad entre hojas */
-    .avoid-break {
-      break-inside: avoid;
-      page-break-inside: avoid;
+    /* Clase estricta para evitar cortes de página a la mitad de un elemento */
+    .avoid-page-break {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      display: block; 
     }
   </style>
 </head>
-<body class="bg-albion-dark text-gray-200 min-h-screen font-sans flex flex-col">
+<!-- Quitamos el items-center del body que rompía las coordenadas del PDF -->
+<body class="bg-albion-dark text-gray-200 min-h-screen font-sans">
 
+  <!-- Botones de Acción -->
   <div class="max-w-7xl mx-auto w-full px-4 pt-6 flex flex-wrap justify-end gap-3 no-pdf">
     <button onclick="copyToDiscord()" class="bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition">
       Copiar para Discord
@@ -43,9 +47,10 @@
     </button>
   </div>
 
+  <!-- Contenedor exacto que se capturará -->
   <div id="pdf-content" class="bg-albion-dark pb-8 mt-4">
     
-    <header class="border-b border-albion-border bg-albion-card/80 py-6 mb-6 avoid-break">
+    <header class="border-b border-albion-border bg-albion-card/80 py-6 mb-6 avoid-page-break">
       <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
         <input type="text" id="activityName" placeholder="Nombre de la actividad (Ej: Roaming ZN)" 
                class="text-2xl md:text-3xl font-extrabold text-albion-gold tracking-wide uppercase bg-transparent text-center border-b border-dashed border-gray-600 focus:outline-none focus:border-albion-gold w-full max-w-2xl placeholder-gray-500 mb-2">
@@ -60,7 +65,7 @@
       
       <div class="xl:col-span-8 space-y-6">
         
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-break">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-page-break">
           <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">💰 Economía General</h2>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -81,7 +86,8 @@
           </div>
         </section>
 
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg overflow-x-auto avoid-break">
+        <!-- Se añade avoid-page-break para que la tabla no se parta a la mitad si es corta -->
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg overflow-x-auto avoid-page-break">
           <div class="flex justify-between items-center mb-4 min-w-[700px]">
             <h2 class="text-xl font-bold text-white flex items-center gap-2">🛡️ Lista de Participantes</h2>
             <button onclick="addPlayer()" class="no-pdf bg-albion-accent hover:bg-amber-600 text-white text-sm font-bold py-1.5 px-4 rounded transition">
@@ -108,13 +114,14 @@
             <span class="text-sm text-gray-300 text-center">Haz clic para añadir capturas</span>
             <input type="file" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
           </label>
-          <div id="imageGallery" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          
+          <div id="imageGallery" class="grid grid-cols-1 gap-4"></div>
         </section>
 
       </div>
 
       <div class="xl:col-span-4 space-y-6">
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-gold/40 shadow-xl relative overflow-hidden avoid-break">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-gold/40 shadow-xl relative overflow-hidden avoid-page-break">
           <h2 class="text-xl font-bold text-white mb-6">Resumen Financiero</h2>
           <div class="space-y-3 text-sm">
             <div class="flex justify-between pb-2 border-b border-albion-border">
@@ -140,7 +147,7 @@
           </div>
         </section>
 
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-break">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-page-break">
           <h3 class="text-lg font-bold text-white mb-4 border-b border-albion-border pb-2">📋 Pagos Finales</h3>
           <div id="payoutList" class="space-y-2 text-sm max-h-none">
             <!-- JS Inject -->
@@ -312,10 +319,11 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           const card = document.createElement('div');
-          card.className = 'relative border border-albion-border rounded p-1 bg-black avoid-break';
+          // Añadimos 'avoid-page-break' a cada imagen individual
+          card.className = 'relative border border-albion-border rounded p-1 bg-black avoid-page-break w-full';
           card.innerHTML = `
             <img src="${e.target.result}" class="w-full h-auto rounded object-contain">
-            <button onclick="this.parentElement.remove()" class="no-pdf absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition">✕</button>
+            <button onclick="this.parentElement.remove()" class="no-pdf absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition shadow-lg">✕</button>
           `;
           gallery.appendChild(card);
         };
@@ -324,7 +332,7 @@
     }
 
     function downloadPDF() {
-      // 1. Forzar el scroll arriba de todo antes de capturar soluciona la pantalla negra.
+      // 1. FORZAR SCROLL ARRIBA: Evita el 99% de los pantallazos negros en html2canvas
       window.scrollTo(0, 0);
 
       const actName = document.getElementById('activityName').value || 'Reparto';
@@ -336,17 +344,20 @@
       const element = document.getElementById('pdf-content');
       
       const opt = {
-        margin:       10, // mm
+        margin:       10, // 10mm de margen
         filename:     `Payout_${actDate}_${actName.replace(/\s+/g, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { 
           scale: 2, 
           useCORS: true, 
           backgroundColor: '#121418',
-          scrollY: 0,
-          windowWidth: 1200 // Esto fuerza el ancho sin romper el layout
+          scrollY: 0, 
+          scrollX: 0,
+          windowWidth: 1200 // Mantiene la vista de 2 columnas
         },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        // Le indicamos a la librería que respete nuestra clase de CSS para no cortar cajas
+        pagebreak:    { mode: ['css', 'legacy'] }
       };
 
       html2pdf().set(opt).from(element).save().then(() => {
