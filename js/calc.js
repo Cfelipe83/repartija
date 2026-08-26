@@ -74,7 +74,7 @@ export function renderEconomicsView(eco, players) {
     }
 
     tr.innerHTML = `
-      <td><strong>${p.name || 'Sin nombre'}</strong></td>
+      <td><strong class="player-name-highlight">${p.name || 'Sin nombre'}</strong></td>
       <td>${formatSilver(eco.baseSplit)}</td>
       <td style="color: var(--success);">+${formatSilver(p.regear || 0)}</td>
       <td style="color: var(--gold);">${refund > 0 ? '+' + formatSilver(refund) : '-'}</td>
