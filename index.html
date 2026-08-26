@@ -17,6 +17,22 @@
     <button class="tab-btn" id="tab-btn-ledger" onclick="window.switchTab('tab-ledger')">📜 Libro Contable (Deudas & Pagos)</button>
   </div>
 
+  <div class="container">
+
+  <!-- Encabezado Principal -->
+  <header class="app-header no-export">
+    <h1 class="main-title">⚔️ LA REPARTIJA</h1>
+    <div class="main-subtitle">
+      Albion Online &bull; Payouts Pro &bull; Diseñado por <span class="designer-tag">KARPLOX</span>
+    </div>
+  </header>
+
+  <!-- Navegación -->
+  <div class="tabs-nav no-export">
+    <button class="tab-btn active" id="tab-btn-calc" onclick="window.switchTab('tab-calc')">⚔️ Calculadora de Reparto</button>
+    <button class="tab-btn" id="tab-btn-ledger" onclick="window.switchTab('tab-ledger')">📜 Libro Contable (Deudas & Pagos)</button>
+  </div>
+
   <!-- PESTAÑA 1: CALCULADORA -->
   <div class="tab-pane active" id="tab-calc">
     <div id="report-content" style="display: flex; flex-direction: column; gap: 16px;">
@@ -194,20 +210,26 @@
       <div id="ledger-sessions-container" style="display: flex; flex-direction: column; gap: 16px; margin-top: 10px;"></div>
     </div>
   </div>
+<!-- Agregar justo antes del cierre de </div> de class="container" -->
+  <footer class="app-footer no-export">
+    Diseñado por <strong class="designer-tag">KARPLOX</strong> &nbsp;•&nbsp; Albion Online - Payouts Pro
+  </footer>
 
 </div>
 
 <!-- PLANTILLA PARA PDF DINÁMICO -->
 <div id="pdf-printable-doc">
   <div class="pdf-header">
-    <div>
-      <div class="pdf-title-gold" id="pdf-title">LIQUIDACIÓN DE BOTÍN</div>
-      <div style="font-size: 8.5pt; color: var(--text-muted); margin-top: 4px;">Albion Online - Payouts Pro Report</div>
-    </div>
-    <div style="text-align: right; font-size: 9pt; color: var(--text-muted);">
-      <div>Fecha: <strong style="color: #fff;" id="pdf-date-val"></strong></div>
+  <div>
+    <div class="pdf-title-gold" id="pdf-title">LIQUIDACIÓN DE BOTÍN</div>
+    <div style="font-size: 8.5pt; color: var(--text-muted); margin-top: 4px;">
+      Albion Online - Payouts Pro Report &nbsp;|&nbsp; Diseñado por <strong style="color: #fff;">KARPLOX</strong>
     </div>
   </div>
+  <div style="text-align: right; font-size: 9pt; color: var(--text-muted);">
+    <div>Fecha: <strong style="color: #fff;" id="pdf-date-val"></strong></div>
+  </div>
+</div>
 
   <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;">Desglose de Cofres</div>
   <table class="pdf-table">
