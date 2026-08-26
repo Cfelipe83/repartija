@@ -20,7 +20,7 @@ export function renderPlayersTable(players, onUpdate, onRemove) {
     const hasUrl = p.killboard && p.killboard.trim().startsWith('http');
 
     tr.innerHTML = `
-      <td><input type="text" class="table-input" value="${p.name}" placeholder="Nick" data-field="name"></td>
+      <td><input type="text" class="table-input table-input-player" value="${p.name}" placeholder="Nick" data-field="name"></td>
       <td><input type="number" class="table-input" min="0" value="${p.buyout || ''}" placeholder="0" data-field="buyout"></td>
       <td><input type="number" class="table-input" min="0" value="${p.regear || ''}" placeholder="0" data-field="regear"></td>
       <td>
