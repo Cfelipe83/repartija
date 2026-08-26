@@ -77,19 +77,19 @@ export function renderLedgerView(ledgerSessions) {
     sess.players.forEach((p, pIdx) => {
       const kbLink = p.killboard ? `<a href="${p.killboard}" target="_blank" style="color:var(--primary-hover); text-decoration:none; margin-left:6px;">🔗 KB</a>` : '';
       playersRows += `
-        <tr>
-          <td><strong>${p.name}</strong> ${kbLink}</td>
-          <td>${formatSilver(p.balance)} Silver</td>
-          <td>
-            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-              <input type="checkbox" ${p.paid ? 'checked' : ''} onchange="window.toggleLedgerPay(${sIdx}, ${pIdx})">
-              <span style="font-size: 0.8rem; color: ${p.paid ? 'var(--success)' : 'var(--warning)'}; font-weight: bold;">
-                ${p.paid ? '✓ Pagado / Saldado' : '⏳ Pendiente'}
-              </span>
-            </label>
-          </td>
-        </tr>
-      `;
+  <tr>
+    <td><strong class="player-name-highlight">${p.name}</strong> ${kbLink}</td>
+    <td>${formatSilver(p.balance)} Silver</td>
+    <td>
+      <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+        <input type="checkbox" ${p.paid ? 'checked' : ''} onchange="window.toggleLedgerPay(${sIdx}, ${pIdx})">
+        <span style="font-size: 0.8rem; color: ${p.paid ? 'var(--success)' : 'var(--warning)'}; font-weight: bold;">
+          ${p.paid ? '✓ Pagado / Saldado' : '⏳ Pendiente'}
+        </span>
+      </label>
+    </td>
+  </tr>
+`;
     });
 
     const t = sess.totals || {};
