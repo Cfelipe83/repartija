@@ -348,3 +348,25 @@ th { background-color: var(--input-bg); color: var(--text-muted); }
   margin-bottom: 12px;
   page-break-inside: avoid;
 }
+/* Nombre del jugador destacado en la Web */
+.player-name-highlight {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: #f0c642 !important;
+  letter-spacing: 0.3px;
+}
+
+/* Nombre del jugador en inputs de edición */
+.table-input-player {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #f0c642 !important;
+}
+
+/* Nombre del jugador destacado en el PDF */
+.pdf-player-name {
+  font-size: 11pt !important;
+  font-weight: 800 !important;
+  color: #d4af37 !important;
+  display: block;
+}
