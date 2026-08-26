@@ -10,6 +10,7 @@ export function exportPDFDocument(sessionData) {
   safeSetText('pdf-gross-loot', formatSilver(t.grossLoot));
   safeSetText('pdf-deductions', formatSilver(t.marketTax + t.repairs + t.guildTax));
   safeSetText('pdf-regear-total', formatSilver(t.regearPool));
+  safeSetText('pdf-net-distributable', formatSilver(t.distributableNet));
   safeSetText('pdf-base-cut', formatSilver(t.baseSplit));
 
   // Render Cofres
@@ -53,7 +54,7 @@ export function exportPDFDocument(sessionData) {
     });
   }
 
-  // Galería de imágenes (si existen)
+  // Galería de imágenes
   const pdfImagesSection = document.getElementById('pdf-images-section');
   const pdfGallery = document.getElementById('pdf-gallery-container');
   if (pdfGallery && pdfImagesSection) {
