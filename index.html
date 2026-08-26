@@ -4,368 +4,498 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Albion Online - Payouts Pro</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Usamos la librería en su versión estable -->
+  <!-- html2pdf.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            albion: {
-              dark: '#121418',
-              card: '#1a1d24',
-              gold: '#eab308',
-              silver: '#cbd5e1',
-              accent: '#d97706',
-              border: '#2e3440'
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    /* Clase estricta para evitar cortes de página a la mitad de un elemento */
-    .avoid-page-break {
-      page-break-inside: avoid !important;
-      break-inside: avoid !important;
-      display: block; 
+    :root {
+      --bg-dark: #121417;
+      --card-bg: #1c1f24;
+      --card-border: #2e3440;
+      --text-main: #eceff4;
+      --text-muted: #d8dee9;
+      --primary: #5e81ac;
+      --primary-hover: #81a1c1;
+      --success: #a3be8c;
+      --danger: #bf616a;
+      --warning: #ebcb8b;
+      --input-bg: #242933;
     }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 20px;
+      page-break-inside: avoid;
+    }
+
+    h1, h2, h3 {
+      margin-bottom: 16px;
+      color: #fff;
+    }
+
+    h1 { font-size: 1.5rem; text-align: center; }
+    h2 { font-size: 1.2rem; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; }
+
+    .grid-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    input, select {
+      background-color: var(--input-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .btn {
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .btn-primary { background-color: var(--primary); color: #fff; }
+    .btn-primary:hover { background-color: var(--primary-hover); }
+    .btn-danger { background-color: var(--danger); color: #fff; }
+    .btn-success { background-color: var(--success); color: #1e1e1e; }
+    .btn-warning { background-color: var(--warning); color: #1e1e1e; }
+
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 0.85rem;
+    }
+
+    th {
+      background-color: var(--input-bg);
+      color: var(--text-muted);
+    }
+
+    .table-input {
+      width: 100%;
+      padding: 6px 8px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.75rem;
+    }
+
+    .status-receive { background-color: rgba(163, 190, 140, 0.2); color: var(--success); }
+    .status-pay { background-color: rgba(191, 97, 106, 0.2); color: var(--danger); }
+    .status-zero { background-color: rgba(235, 203, 139, 0.2); color: var(--warning); }
+
+    .summary-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .metric-box {
+      background-color: var(--input-bg);
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+    }
+
+    .metric-title { font-size: 0.75rem; color: var(--text-muted); }
+    .metric-value { font-size: 1.1rem; font-weight: bold; margin-top: 4px; }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .evidence-thumb {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid var(--card-border);
+    }
+
+    /* Print / PDF overrides */
+    .html2pdf__page-break { page-break-before: always; }
+    .no-export { display: block; }
+    .export-mode .no-export { display: none !important; }
   </style>
 </head>
-<!-- Quitamos el items-center del body que rompía las coordenadas del PDF -->
-<body class="bg-albion-dark text-gray-200 min-h-screen font-sans">
+<body>
 
-  <!-- Botones de Acción -->
-  <div class="max-w-7xl mx-auto w-full px-4 pt-6 flex flex-wrap justify-end gap-3 no-pdf">
-    <button onclick="copyToDiscord()" class="bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition">
-      Copiar para Discord
-    </button>
-    <button onclick="downloadPDF()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition">
-      Descargar PDF
-    </button>
+<div class="container" id="report-content">
+
+  <div class="card">
+    <h1>⚔️ Albion Online - Payouts Pro</h1>
+    <div class="grid-form">
+      <div class="form-group">
+        <label for="party-name">Actividad / Nombre de Party</label>
+        <input type="text" id="party-name" value="Gank / Roaming Session">
+      </div>
+      <div class="form-group">
+        <label for="party-date">Fecha</label>
+        <input type="date" id="party-date">
+      </div>
+    </div>
   </div>
 
-  <!-- Contenedor exacto que se capturará -->
-  <div id="pdf-content" class="bg-albion-dark pb-8 mt-4">
+  <div class="card">
+    <h2>1. Economía General</h2>
+    <div class="grid-form">
+      <div class="form-group">
+        <label for="total-loot">Botín Total Estimado (Silver)</label>
+        <input type="number" id="total-loot" min="0" value="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label for="repairs">Costo Reparaciones (Silver)</label>
+        <input type="number" id="repairs" min="0" value="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label for="guild-tax">Impuesto de Gremio (%)</label>
+        <input type="number" id="guild-tax" min="0" max="100" value="0" placeholder="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Participantes</h2>
+    <div class="actions-bar no-export" style="margin-bottom: 12px;">
+      <button class="btn btn-primary" onclick="addPlayer()">+ Añadir Jugador</button>
+    </div>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Nick</th>
+            <th>Descuento / Buyout (Silver)</th>
+            <th>Re-equipo Solicitado (Silver)</th>
+            <th>Killboard URL</th>
+            <th class="no-export">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="player-rows">
+          <!-- Inyección dinámica -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. Resumen Financiero</h2>
+    <div class="summary-metrics">
+      <div class="metric-box">
+        <div class="metric-title">Impuesto Gremio Cobrado</div>
+        <div class="metric-value" id="disp-tax">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Fondo Total Re-equipos</div>
+        <div class="metric-value" id="disp-regear-pool">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Total Neto a Repartir</div>
+        <div class="metric-value" id="disp-distributable">0</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-title">Corte Base por Jugador</div>
+        <div class="metric-value" id="disp-base-split">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4. Pagos Finales</h2>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Jugador</th>
+            <th>Corte Base</th>
+            <th>Re-equipo (+)</th>
+            <th>Descuento (-)</th>
+            <th>Balance Final</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="payout-rows">
+          <!-- Inyección dinámica -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. Respaldo Visual (Capturas de Pantalla)</h2>
+    <div class="no-export" style="margin-bottom: 12px;">
+      <input type="file" id="evidence-input" accept="image/*" multiple onchange="handleImageUpload(event)">
+    </div>
+    <div class="evidence-grid" id="evidence-gallery">
+      <!-- Inyección dinámica -->
+    </div>
+  </div>
+
+  <div class="actions-bar no-export">
+    <button class="btn btn-warning" onclick="copyDiscordMarkdown()">📋 Copiar para Discord</button>
+    <button class="btn btn-success" onclick="exportPDF()">📄 Descargar Reporte PDF</button>
+  </div>
+
+</div>
+
+<script>
+  let players = [];
+  let evidenceImages = [];
+
+  // Init
+  document.getElementById('party-date').valueAsDate = new Date();
+  addPlayer("Jugador 1");
+
+  function sanitize(num) {
+    const val = Number(num);
+    return isNaN(val) || val < 0 ? 0 : val;
+  }
+
+  function formatSilver(val) {
+    return Math.round(val).toLocaleString('es-CL');
+  }
+
+  function addPlayer(defaultName = "") {
+    const id = Date.now() + Math.random().toString(36).substr(2, 4);
+    players.push({
+      id: id,
+      name: defaultName,
+      buyout: 0,
+      regear: 0,
+      killboard: ""
+    });
+    renderPlayersTable();
+    calculateAll();
+  }
+
+  function removePlayer(id) {
+    players = players.filter(p => p.id !== id);
+    renderPlayersTable();
+    calculateAll();
+  }
+
+  function updatePlayerField(id, field, value) {
+    const player = players.find(p => p.id === id);
+    if (!player) return;
+
+    if (field === 'buyout' || field === 'regear') {
+      player[field] = sanitize(value);
+    } else {
+      player[field] = value;
+    }
+    calculateAll();
+  }
+
+  function renderPlayersTable() {
+    const tbody = document.getElementById('player-rows');
+    tbody.innerHTML = "";
+
+    players.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" class="table-input" value="${p.name}" placeholder="Nick" oninput="updatePlayerField('${p.id}', 'name', this.value)"></td>
+        <td><input type="number" class="table-input" min="0" value="${p.buyout || ''}" placeholder="0" oninput="updatePlayerField('${p.id}', 'buyout', this.value)"></td>
+        <td><input type="number" class="table-input" min="0" value="${p.regear || ''}" placeholder="0" oninput="updatePlayerField('${p.id}', 'regear', this.value)"></td>
+        <td><input type="url" class="table-input" value="${p.killboard}" placeholder="https://..." oninput="updatePlayerField('${p.id}', 'killboard', this.value)"></td>
+        <td class="no-export"><button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="removePlayer('${p.id}')">Eliminar</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Listeners economía
+  ['total-loot', 'repairs', 'guild-tax'].forEach(id => {
+    document.getElementById(id).addEventListener('input', calculateAll);
+  });
+
+  function calculateAll() {
+    const totalLoot = sanitize(document.getElementById('total-loot').value);
+    const repairs = sanitize(document.getElementById('repairs').value);
+    const taxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
+
+    const totalRegearPool = players.reduce((sum, p) => sum + p.regear, 0);
+    const taxAmount = (totalLoot * taxPercent) / 100;
     
-    <header class="border-b border-albion-border bg-albion-card/80 py-6 mb-6 avoid-page-break">
-      <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
-        <input type="text" id="activityName" placeholder="Nombre de la actividad (Ej: Roaming ZN)" 
-               class="text-2xl md:text-3xl font-extrabold text-albion-gold tracking-wide uppercase bg-transparent text-center border-b border-dashed border-gray-600 focus:outline-none focus:border-albion-gold w-full max-w-2xl placeholder-gray-500 mb-2">
-        <div class="flex items-center gap-2 mt-2">
-          <span class="text-sm text-gray-400">Fecha de la actividad:</span>
-          <input type="date" id="activityDate" class="bg-albion-dark border border-gray-600 rounded px-2 py-1 text-sm text-gray-300 focus:outline-none focus:border-albion-gold">
-        </div>
-      </div>
-    </header>
+    // Total a repartir = Loot - Reparaciones - Tax - Bolsa de re-equipos
+    const distributableNet = Math.max(0, totalLoot - repairs - taxAmount - totalRegearPool);
+    const totalPlayersCount = players.length;
+    const baseSplit = totalPlayersCount > 0 ? distributableNet / totalPlayersCount : 0;
 
-    <main class="max-w-7xl mx-auto px-4 grid grid-cols-1 xl:grid-cols-12 gap-8">
-      
-      <div class="xl:col-span-8 space-y-6">
-        
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-page-break">
-          <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">💰 Economía General</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-1">Total del Botín (Silver)</label>
-              <input type="number" id="totalLoot" placeholder="0" min="0" oninput="calculateSplit()"
-                     class="w-full bg-albion-dark border border-albion-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-albion-gold">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-1">Reparaciones (Silver)</label>
-              <input type="number" id="repairCost" placeholder="0" min="0" oninput="calculateSplit()"
-                     class="w-full bg-albion-dark border border-albion-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-albion-gold">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-1">Impuesto Gremio (%)</label>
-              <input type="number" id="taxPercent" value="0" min="0" max="100" oninput="calculateSplit()"
-                     class="w-full bg-albion-dark border border-albion-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-albion-gold">
-            </div>
-          </div>
-        </section>
+    // Actualizar Resumen
+    document.getElementById('disp-tax').innerText = formatSilver(taxAmount);
+    document.getElementById('disp-regear-pool').innerText = formatSilver(totalRegearPool);
+    document.getElementById('disp-distributable').innerText = formatSilver(distributableNet);
+    document.getElementById('disp-base-split').innerText = formatSilver(baseSplit);
 
-        <!-- Se añade avoid-page-break para que la tabla no se parta a la mitad si es corta -->
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg overflow-x-auto avoid-page-break">
-          <div class="flex justify-between items-center mb-4 min-w-[700px]">
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">🛡️ Lista de Participantes</h2>
-            <button onclick="addPlayer()" class="no-pdf bg-albion-accent hover:bg-amber-600 text-white text-sm font-bold py-1.5 px-4 rounded transition">
-              + Añadir Jugador
-            </button>
-          </div>
-          
-          <div class="hidden md:grid grid-cols-12 gap-2 mb-2 text-xs text-gray-400 uppercase font-bold px-2 min-w-[700px]">
-            <div class="col-span-5">Nombre</div>
-            <div class="col-span-2 text-right">Descuento</div>
-            <div class="col-span-2 text-right text-green-400">Re-equipo</div>
-            <div class="col-span-2 text-center text-blue-400">Killboard (Link)</div>
-            <div class="col-span-1"></div>
-          </div>
+    // Render Pagos Finales
+    const payoutBody = document.getElementById('payout-rows');
+    payoutBody.innerHTML = "";
 
-          <div id="playersContainer" class="space-y-3 min-w-[700px]">
-            <!-- JS Inject -->
-          </div>
-        </section>
+    players.forEach(p => {
+      const finalBalance = baseSplit + p.regear - p.buyout;
+      const tr = document.createElement('tr');
 
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
-          <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">🖼️ Capturas de Respaldo</h2>
-          <label id="uploadBtn" class="no-pdf border-2 border-dashed border-albion-border hover:border-albion-gold rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer transition-colors bg-albion-dark/50 mb-4">
-            <span class="text-sm text-gray-300 text-center">Haz clic para añadir capturas</span>
-            <input type="file" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
-          </label>
-          
-          <div id="imageGallery" class="grid grid-cols-1 gap-4"></div>
-        </section>
-
-      </div>
-
-      <div class="xl:col-span-4 space-y-6">
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-gold/40 shadow-xl relative overflow-hidden avoid-page-break">
-          <h2 class="text-xl font-bold text-white mb-6">Resumen Financiero</h2>
-          <div class="space-y-3 text-sm">
-            <div class="flex justify-between pb-2 border-b border-albion-border">
-              <span class="text-gray-400">Total Bruto:</span>
-              <span id="resTotal" class="font-semibold text-white">0</span>
-            </div>
-            <div class="flex justify-between pb-2 border-b border-albion-border">
-              <span class="text-gray-400">Reparaciones:</span>
-              <span id="resRepair" class="font-semibold text-red-400">- 0</span>
-            </div>
-            <div class="flex justify-between pb-2 border-b border-albion-border">
-              <span class="text-gray-400">Impuesto:</span>
-              <span id="resTax" class="font-semibold text-amber-400">- 0</span>
-            </div>
-            <div class="flex justify-between pb-2 border-b border-albion-border">
-              <span class="text-gray-400">Total Re-equipos:</span>
-              <span id="resRegear" class="font-semibold text-green-400">- 0</span>
-            </div>
-            <div class="flex justify-between pb-2 border-b border-albion-border">
-              <span class="text-gray-300 font-medium">Neto a Repartir:</span>
-              <span id="resNet" class="font-bold text-white text-lg">0</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-page-break">
-          <h3 class="text-lg font-bold text-white mb-4 border-b border-albion-border pb-2">📋 Pagos Finales</h3>
-          <div id="payoutList" class="space-y-2 text-sm max-h-none">
-            <!-- JS Inject -->
-          </div>
-        </section>
-      </div>
-    </main>
-  </div> 
-
-  <script>
-    document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
-
-    let players = [
-      { id: Date.now(), name: "Jugador 1", buyout: 0, regear: 0, link: "" }
-    ];
-
-    function formatSilver(val) {
-      return new Intl.NumberFormat('es-CL').format(Math.max(0, Math.round(val)));
-    }
-    function formatExact(val) {
-      return new Intl.NumberFormat('es-CL').format(Math.round(val));
-    }
-
-    function renderPlayersInput() {
-      const container = document.getElementById('playersContainer');
-      container.innerHTML = '';
-
-      players.forEach((p) => {
-        const row = document.createElement('div');
-        row.className = 'grid grid-cols-1 md:grid-cols-12 gap-2 items-center bg-albion-dark p-3 md:p-2 rounded border border-albion-border';
-        
-        row.innerHTML = `
-          <div class="md:col-span-5">
-            <input type="text" value="${p.name}" oninput="updatePlayer(${p.id}, 'name', this.value)" placeholder="Nick" class="w-full bg-transparent text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
-          </div>
-          <div class="md:col-span-2">
-            <input type="number" value="${p.buyout || ''}" placeholder="0" oninput="updatePlayer(${p.id}, 'buyout', this.value)" class="w-full bg-transparent text-right text-red-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
-          </div>
-          <div class="md:col-span-2">
-            <input type="number" value="${p.regear || ''}" placeholder="0" oninput="updatePlayer(${p.id}, 'regear', this.value)" class="w-full bg-transparent text-right text-green-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
-          </div>
-          <div class="md:col-span-2">
-            <input type="url" value="${p.link || ''}" placeholder="URL Manual" oninput="updatePlayer(${p.id}, 'link', this.value)" class="w-full bg-transparent text-xs text-blue-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1 text-center">
-          </div>
-          <div class="md:col-span-1 flex justify-end md:justify-center">
-            <button onclick="removePlayer(${p.id})" class="no-pdf text-red-500 hover:text-red-400 text-lg font-bold w-6 h-6 rounded hover:bg-red-900/30 transition">✕</button>
-          </div>
-        `;
-        container.appendChild(row);
-      });
-      calculateSplit();
-    }
-
-    function addPlayer() {
-      players.push({ id: Date.now(), name: `Jugador ${players.length + 1}`, buyout: 0, regear: 0, link: "" });
-      renderPlayersInput();
-    }
-
-    function removePlayer(id) {
-      if(players.length > 1) {
-        players = players.filter(p => p.id !== id);
-        renderPlayersInput();
+      let statusBadge = "";
+      if (finalBalance > 0) {
+        statusBadge = `<span class="status-badge status-receive">RECIBE ${formatSilver(finalBalance)}</span>`;
+      } else if (finalBalance < 0) {
+        statusBadge = `<span class="status-badge status-pay">DEBE ${formatSilver(Math.abs(finalBalance))}</span>`;
+      } else {
+        statusBadge = `<span class="status-badge status-zero">SALDADO (0)</span>`;
       }
-    }
 
-    function updatePlayer(id, field, value) {
-      const p = players.find(p => p.id === id);
-      if(p) {
-        p[field] = (field === 'name' || field === 'link') ? value : (parseFloat(value) || 0);
-        calculateSplit();
-      }
-    }
+      tr.innerHTML = `
+        <td><strong>${p.name || 'Sin nombre'}</strong></td>
+        <td>${formatSilver(baseSplit)}</td>
+        <td style="color: var(--success);">+${formatSilver(p.regear)}</td>
+        <td style="color: var(--danger);">${p.buyout > 0 ? '-' + formatSilver(p.buyout) : '0'}</td>
+        <td><strong>${formatSilver(finalBalance)}</strong></td>
+        <td>${statusBadge}</td>
+      `;
+      payoutBody.appendChild(tr);
+    });
+  }
 
-    let finalPayouts = []; 
-    let globalNet = 0;
+  function handleImageUpload(e) {
+    const files = Array.from(e.target.files);
+    const gallery = document.getElementById('evidence-gallery');
 
-    function calculateSplit() {
-      const total = parseFloat(document.getElementById('totalLoot').value) || 0;
-      const repair = parseFloat(document.getElementById('repairCost').value) || 0;
-      const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
-      
-      const afterRepair = Math.max(0, total - repair);
-      const taxAmount = (afterRepair * taxPercent) / 100;
-      const totalRegears = players.reduce((sum, p) => sum + p.regear, 0);
-      
-      globalNet = Math.max(0, afterRepair - taxAmount - totalRegears);
-
-      const valuePerPlayer = players.length > 0 ? (globalNet / players.length) : 0;
-
-      document.getElementById('resTotal').innerText = formatSilver(total);
-      document.getElementById('resRepair').innerText = '- ' + formatSilver(repair);
-      document.getElementById('resTax').innerText = '- ' + formatSilver(taxAmount);
-      document.getElementById('resRegear').innerText = '- ' + formatSilver(totalRegears);
-      document.getElementById('resNet').innerText = formatSilver(globalNet);
-
-      const listContainer = document.getElementById('payoutList');
-      listContainer.innerHTML = '';
-      finalPayouts = [];
-
-      players.forEach(p => {
-        const splitShare = valuePerPlayer;
-        const netPayout = splitShare - p.buyout + p.regear;
-
-        finalPayouts.push({ name: p.name, net: netPayout, buyout: p.buyout, regear: p.regear, link: p.link });
-
-        const isOwed = netPayout < 0; 
-        const textClass = isOwed ? 'text-red-400 font-bold' : 'text-albion-gold font-bold';
-        const formattedAmount = isOwed ? `DEBE ${formatExact(Math.abs(netPayout))}` : formatExact(netPayout);
-
-        const row = document.createElement('div');
-        row.className = 'flex justify-between items-center py-2 border-b border-albion-border/50 last:border-0';
-        
-        let detailsHtml = '';
-        if (p.buyout > 0) detailsHtml += `<span class="text-[10px] text-gray-500 block">Items: -${formatExact(p.buyout)}</span>`;
-        if (p.regear > 0) detailsHtml += `<span class="text-[10px] text-green-500 block">Re-equipo: +${formatExact(p.regear)}</span>`;
-
-        row.innerHTML = `
-          <div class="flex flex-col">
-            <span class="text-gray-200 truncate pr-2">${p.name}</span>
-            ${p.link ? `<a href="${p.link}" target="_blank" class="text-[10px] text-blue-400 underline truncate max-w-[150px]">Resp. Muerte 🔗</a>` : ''}
-          </div>
-          <div class="text-right flex flex-col items-end">
-            <span class="${textClass}">${formattedAmount}</span>
-            ${detailsHtml}
-          </div>
-        `;
-        listContainer.appendChild(row);
-      });
-    }
-
-    function copyToDiscord() {
-      const actName = document.getElementById('activityName').value || 'Actividad';
-      const actDate = document.getElementById('activityDate').value;
-      const total = parseFloat(document.getElementById('totalLoot').value) || 0;
-      const repair = parseFloat(document.getElementById('repairCost').value) || 0;
-      const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
-      const totalRegears = players.reduce((sum, p) => sum + p.regear, 0);
-      
-      let text = `⚔️ **REPARTO DE LOOT: ${actName}** 📅 ${actDate}\n`;
-      text += `💰 **Total:** ${formatSilver(total)} | 🛠️ **Rep:** -${formatSilver(repair)} | 👑 **Tax:** -${formatSilver(Math.max(0, total - repair)*taxPercent/100)} | ⚰️ **Reequipos:** -${formatSilver(totalRegears)}\n`;
-      text += `✅ **Neto Repartido:** ${formatSilver(globalNet)}\n\n`;
-      text += `**PAGOS:**\n`;
-      
-      finalPayouts.forEach(p => {
-        let details = [];
-        if(p.buyout > 0) details.push(`Items: -${formatExact(p.buyout)}`);
-        if(p.regear > 0) details.push(`Reequipo: +${formatExact(p.regear)}`);
-        
-        let detailString = details.length > 0 ? ` *(${details.join(', ')})*` : '';
-        let linkString = p.link ? ` - [Muerte](${p.link})` : '';
-        
-        if(p.net >= 0) {
-          text += `**@${p.name}** : ${formatExact(p.net)}${detailString}${linkString}\n`;
-        } else {
-          text += `**@${p.name}** : DEBE ${formatExact(Math.abs(p.net))}${detailString}${linkString}\n`;
-        }
-      });
-
-      navigator.clipboard.writeText(text).then(() => {
-        alert('¡Resumen copiado! Listo para pegar en Discord.');
-      });
-    }
-
-    function handleImageUpload(event) {
-      const files = event.target.files;
-      const gallery = document.getElementById('imageGallery');
-      for (const file of files) {
-        if (!file.type.startsWith('image/')) continue;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const card = document.createElement('div');
-          // Añadimos 'avoid-page-break' a cada imagen individual
-          card.className = 'relative border border-albion-border rounded p-1 bg-black avoid-page-break w-full';
-          card.innerHTML = `
-            <img src="${e.target.result}" class="w-full h-auto rounded object-contain">
-            <button onclick="this.parentElement.remove()" class="no-pdf absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition shadow-lg">✕</button>
-          `;
-          gallery.appendChild(card);
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function downloadPDF() {
-      // 1. FORZAR SCROLL ARRIBA: Evita el 99% de los pantallazos negros en html2canvas
-      window.scrollTo(0, 0);
-
-      const actName = document.getElementById('activityName').value || 'Reparto';
-      const actDate = document.getElementById('activityDate').value;
-      
-      const hideElements = document.querySelectorAll('.no-pdf');
-      hideElements.forEach(el => el.style.display = 'none');
-      
-      const element = document.getElementById('pdf-content');
-      
-      const opt = {
-        margin:       10, // 10mm de margen
-        filename:     `Payout_${actDate}_${actName.replace(/\s+/g, '_')}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-          scale: 2, 
-          useCORS: true, 
-          backgroundColor: '#121418',
-          scrollY: 0, 
-          scrollX: 0,
-          windowWidth: 1200 // Mantiene la vista de 2 columnas
-        },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        // Le indicamos a la librería que respete nuestra clase de CSS para no cortar cajas
-        pagebreak:    { mode: ['css', 'legacy'] }
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = document.createElement('img');
+        img.src = event.target.result;
+        img.className = 'evidence-thumb';
+        gallery.appendChild(img);
       };
+      reader.readAsDataURL(file);
+    });
+  }
 
-      html2pdf().set(opt).from(element).save().then(() => {
-        hideElements.forEach(el => el.style.display = '');
-      });
-    }
+  function copyDiscordMarkdown() {
+    const activity = document.getElementById('party-name').value || 'Reparto';
+    const date = document.getElementById('party-date').value;
+    const totalLoot = sanitize(document.getElementById('total-loot').value);
+    const baseSplit = document.getElementById('disp-base-split').innerText;
 
-    renderPlayersInput();
-  </script>
+    let md = `📦 **REPARTO DE BOTÍN: ${activity.toUpperCase()}** (${date})\n`;
+    md += `💰 **Total Botín:** \`${formatSilver(totalLoot)} Silver\`\n`;
+    md += `⚖️ **Corte Base:** \`${baseSplit} Silver / persona\`\n\n`;
+    md += `**Desglose de Pagos:**\n\`\`\`diff\n`;
+
+    const distributableNet = parseFloat(document.getElementById('disp-distributable').innerText.replace(/\./g, ''));
+    const baseSplitVal = players.length > 0 ? distributableNet / players.length : 0;
+
+    players.forEach(p => {
+      const balance = baseSplitVal + p.regear - p.buyout;
+      const cleanName = p.name || 'Desconocido';
+      if (balance > 0) {
+        md += `+ ${cleanName.padEnd(16)}: Recibe ${formatSilver(balance)} (Base: ${formatSilver(baseSplitVal)} | Re-gear: +${formatSilver(p.regear)} | Buyout: -${formatSilver(p.buyout)})\n`;
+      } else if (balance < 0) {
+        md += `- ${cleanName.padEnd(16)}: DEBE ${formatSilver(Math.abs(balance))} (Buyout: -${formatSilver(p.buyout)})\n`;
+      } else {
+        md += `  ${cleanName.padEnd(16)}: Saldado (0)\n`;
+      }
+    });
+
+    md += `\`\`\``;
+
+    navigator.clipboard.writeText(md).then(() => {
+      alert("Reporte copiado al portapapeles listo para Discord.");
+    }).catch(() => {
+      alert("Error al copiar portapapeles.");
+    });
+  }
+
+  function exportPDF() {
+    const element = document.getElementById('report-content');
+    element.classList.add('export-mode');
+
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `Payout_${document.getElementById('party-name').value.replace(/\s+/g, '_')}_${document.getElementById('party-date').value}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      element.classList.remove('export-mode');
+    }).catch(err => {
+      console.error(err);
+      element.classList.remove('export-mode');
+    });
+  }
+</script>
+
 </body>
 </html>
