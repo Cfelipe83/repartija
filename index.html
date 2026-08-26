@@ -42,7 +42,6 @@
       <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
         <input type="text" id="activityName" placeholder="Nombre de la actividad (Ej: Roaming ZN)" 
                class="text-2xl md:text-3xl font-extrabold text-albion-gold tracking-wide uppercase bg-transparent text-center border-b border-dashed border-gray-600 focus:outline-none focus:border-albion-gold w-full max-w-2xl placeholder-gray-500 mb-2">
-        <!-- Selector de Fecha Manual -->
         <div class="flex items-center gap-2 mt-2">
           <span class="text-sm text-gray-400">Fecha de la actividad:</span>
           <input type="date" id="activityDate" class="bg-albion-dark border border-gray-600 rounded px-2 py-1 text-sm text-gray-300 focus:outline-none focus:border-albion-gold">
@@ -76,24 +75,24 @@
         </section>
 
         <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg overflow-x-auto">
-          <div class="flex justify-between items-center mb-4 min-w-[700px]">
+          <div class="flex justify-between items-center mb-4 min-w-[750px]">
             <h2 class="text-xl font-bold text-white flex items-center gap-2">🛡️ Lista de Participantes</h2>
             <button onclick="addPlayer()" class="no-pdf bg-albion-accent hover:bg-amber-600 text-white text-sm font-bold py-1.5 px-4 rounded transition">
               + Añadir Jugador
             </button>
           </div>
           
-          <div class="hidden md:grid grid-cols-12 gap-2 mb-2 text-xs text-gray-400 uppercase font-bold px-2 min-w-[700px]">
+          <div class="hidden md:grid grid-cols-12 gap-2 mb-2 text-xs text-gray-400 uppercase font-bold px-2 min-w-[750px]">
             <div class="col-span-3">Nombre</div>
-            <div class="col-span-1 text-center" title="Multiplicador (Ej: 1.5)">Rol</div>
-            <div class="col-span-1 text-center" title="Porcentaje de asistencia">% Asist.</div>
-            <div class="col-span-2 text-right" title="Valor que se quedó">Descuento</div>
-            <div class="col-span-2 text-right text-green-400" title="Valor a devolver por muerte">Re-equipo</div>
-            <div class="col-span-2 text-center" title="Link de Albion2D o Killboard">Link Muerte</div>
+            <div class="col-span-1 text-center">Rol</div>
+            <div class="col-span-1 text-center">% Asist.</div>
+            <div class="col-span-2 text-right">Descuento</div>
+            <div class="col-span-2 text-right text-green-400">Re-equipo</div>
+            <div class="col-span-2 text-center text-blue-400">Killboard (Link)</div>
             <div class="col-span-1"></div>
           </div>
 
-          <div id="playersContainer" class="space-y-3 min-w-[700px]">
+          <div id="playersContainer" class="space-y-3 min-w-[750px]">
             <!-- JS Inject -->
           </div>
         </section>
@@ -110,7 +109,6 @@
       </div>
 
       <div class="xl:col-span-4 space-y-6">
-        
         <section class="bg-albion-card p-6 rounded-xl border border-albion-gold/40 shadow-xl relative overflow-hidden">
           <h2 class="text-xl font-bold text-white mb-6">Resumen Financiero</h2>
           <div class="space-y-3 text-sm">
@@ -148,7 +146,6 @@
   </div> 
 
   <script>
-    // Inicializar Fecha
     document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
 
     let players = [
@@ -172,28 +169,23 @@
         
         row.innerHTML = `
           <div class="md:col-span-3">
-            <span class="md:hidden text-xs text-gray-500">Nombre</span>
             <input type="text" value="${p.name}" oninput="updatePlayer(${p.id}, 'name', this.value)" placeholder="Nick" class="w-full bg-transparent text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
           <div class="md:col-span-1">
-            <span class="md:hidden text-xs text-gray-500">Rol</span>
             <input type="number" value="${p.mult}" step="0.1" min="0" oninput="updatePlayer(${p.id}, 'mult', this.value)" class="w-full bg-transparent text-center text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
           <div class="md:col-span-1">
-            <span class="md:hidden text-xs text-gray-500">% Asistencia</span>
             <input type="number" value="${p.part}" min="0" max="100" oninput="updatePlayer(${p.id}, 'part', this.value)" class="w-full bg-transparent text-center text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
           <div class="md:col-span-2">
-            <span class="md:hidden text-xs text-gray-500">Descuento</span>
             <input type="number" value="${p.buyout || ''}" placeholder="0" oninput="updatePlayer(${p.id}, 'buyout', this.value)" class="w-full bg-transparent text-right text-red-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
           <div class="md:col-span-2">
-            <span class="md:hidden text-xs text-green-500">Re-equipo</span>
             <input type="number" value="${p.regear || ''}" placeholder="0" oninput="updatePlayer(${p.id}, 'regear', this.value)" class="w-full bg-transparent text-right text-green-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
-          <div class="md:col-span-2">
-            <span class="md:hidden text-xs text-blue-400">Link Muerte</span>
-            <input type="url" value="${p.link || ''}" placeholder="URL Killboard" oninput="updatePlayer(${p.id}, 'link', this.value)" class="w-full bg-transparent text-xs text-blue-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
+          <div class="md:col-span-2 flex items-center gap-1">
+            <input type="url" value="${p.link || ''}" placeholder="URL" oninput="updatePlayer(${p.id}, 'link', this.value)" class="w-full bg-transparent text-xs text-blue-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
+            <button onclick="autoFetchDeath(${p.id}, '${p.name}', event)" title="Buscar última muerte" class="no-pdf bg-gray-700 hover:bg-gray-600 text-white p-1 rounded text-xs transition">🔍</button>
           </div>
           <div class="md:col-span-1 flex justify-end md:justify-center">
             <button onclick="removePlayer(${p.id})" class="no-pdf text-red-500 hover:text-red-400 text-lg font-bold w-6 h-6 rounded hover:bg-red-900/30 transition">✕</button>
@@ -224,6 +216,59 @@
       }
     }
 
+    // Buscador automático de muertes a través de la API oficial de Albion y proxy CORS
+    async function autoFetchDeath(id, playerName, event) {
+      if (!playerName || playerName.trim() === '' || playerName.startsWith('Jugador')) {
+        alert("Escribe el Nick real del jugador para buscar.");
+        return;
+      }
+
+      const btn = event.currentTarget;
+      btn.innerText = "⏳";
+      btn.disabled = true;
+
+      try {
+        // 1. Obtener ID del jugador
+        const searchUrl = `https://gameinfo.albiononline.com/api/gameinfo/search?q=${playerName}`;
+        const proxySearch = `https://api.allorigins.win/raw?url=${encodeURIComponent(searchUrl)}`;
+        const searchRes = await fetch(proxySearch);
+        const searchData = await searchRes.json();
+
+        if (!searchData.players || searchData.players.length === 0) {
+          alert(`No se encontró el jugador "${playerName}".`);
+          btn.innerText = "🔍";
+          btn.disabled = false;
+          return;
+        }
+
+        const exactMatch = searchData.players.find(p => p.Name.toLowerCase() === playerName.toLowerCase()) || searchData.players[0];
+        
+        // 2. Obtener muertes
+        const deathsUrl = `https://gameinfo.albiononline.com/api/gameinfo/players/${exactMatch.Id}/deaths`;
+        const proxyDeaths = `https://api.allorigins.win/raw?url=${encodeURIComponent(deathsUrl)}`;
+        const deathsRes = await fetch(proxyDeaths);
+        const deathsData = await deathsRes.json();
+
+        if (!deathsData || deathsData.length === 0) {
+          alert(`No hay muertes recientes para ${exactMatch.Name}.`);
+          btn.innerText = "🔍";
+          btn.disabled = false;
+          return;
+        }
+
+        // 3. Obtener el link del Killboard oficial
+        const killUrl = `https://albiononline.com/killboard/kill/${deathsData[0].EventId}`;
+        updatePlayer(id, 'link', killUrl);
+        renderPlayersInput(); 
+
+      } catch (error) {
+        console.error(error);
+        alert("Hubo un error de conexión con Albion API.");
+        btn.innerText = "🔍";
+        btn.disabled = false;
+      }
+    }
+
     let finalPayouts = []; 
     let globalNet = 0;
 
@@ -231,15 +276,11 @@
       const total = parseFloat(document.getElementById('totalLoot').value) || 0;
       const repair = parseFloat(document.getElementById('repairCost').value) || 0;
       const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
-
-      // 1. Extraer reparaciones
+      
       const afterRepair = Math.max(0, total - repair);
-      // 2. Extraer impuesto
       const taxAmount = (afterRepair * taxPercent) / 100;
-      // 3. Extraer total de re-equipos del fondo común
       const totalRegears = players.reduce((sum, p) => sum + p.regear, 0);
       
-      // Lo que queda para dividir en partes
       globalNet = Math.max(0, afterRepair - taxAmount - totalRegears);
 
       let totalWeight = 0;
@@ -257,10 +298,7 @@
       finalPayouts = [];
 
       players.forEach(p => {
-        const weight = p.mult * (p.part / 100);
-        const splitShare = weight * valuePerWeight;
-        
-        // PAGO FINAL: Su parte del loot - Lo que debe + Su compensación de muerte
+        const splitShare = (p.mult * (p.part / 100)) * valuePerWeight;
         const netPayout = splitShare - p.buyout + p.regear;
 
         finalPayouts.push({ name: p.name, net: netPayout, buyout: p.buyout, regear: p.regear, link: p.link });
@@ -272,16 +310,14 @@
         const row = document.createElement('div');
         row.className = 'flex justify-between items-center py-2 border-b border-albion-border/50 last:border-0';
         
-        // Formato para mostrar detalles en la lista final
         let detailsHtml = '';
         if (p.buyout > 0) detailsHtml += `<span class="text-[10px] text-gray-500 block">Items: -${formatExact(p.buyout)}</span>`;
         if (p.regear > 0) detailsHtml += `<span class="text-[10px] text-green-500 block">Re-equipo: +${formatExact(p.regear)}</span>`;
-        if (p.link) detailsHtml += `<a href="${p.link}" target="_blank" class="text-[10px] text-blue-400 underline block mt-1">Ver Muerte 🔗</a>`;
 
         row.innerHTML = `
           <div class="flex flex-col">
             <span class="text-gray-200 truncate pr-2">${p.name}</span>
-            ${p.link ? `<a href="${p.link}" target="_blank" class="text-[10px] text-blue-400 underline truncate max-w-[150px]">Resp. Muerte</a>` : ''}
+            ${p.link ? `<a href="${p.link}" target="_blank" class="text-[10px] text-blue-400 underline truncate max-w-[150px]">Resp. Muerte 🔗</a>` : ''}
           </div>
           <div class="text-right flex flex-col items-end">
             <span class="${textClass}">${formattedAmount}</span>
@@ -293,18 +329,22 @@
     }
 
     function copyToDiscord() {
-      const actName = document.getElementById('activityName').value || 'Actividad sin nombre';
+      const actName = document.getElementById('activityName').value || 'Actividad';
       const actDate = document.getElementById('activityDate').value;
-      
       const total = parseFloat(document.getElementById('totalLoot').value) || 0;
       const repair = parseFloat(document.getElementById('repairCost').value) || 0;
       const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
       const totalRegears = players.reduce((sum, p) => sum + p.regear, 0);
       
-      let text = `⚔️ **REPARTO DE LOOT: ${actName}** 📅 ${actDate}\n`;
-      text += `💰 **Total:** ${formatSilver(total)} | 🛠️ **Rep:** -${formatSilver(repair)} | 👑 **Tax:** -${formatSilver(Math.max(0, total - repair)*taxPercent/100)} | ⚰️ **Reequipos Totales:** -${formatSilver(totalRegears)}\n`;
-      text += `✅ **Neto Repartido:** ${formatSilver(globalNet)}\n\n`;
-      text += `**PAGOS:**\n`;
+      let text = `⚔️ **REPARTO DE LOOT: ${actName}** 📅 ${actDate}
+`;
+      text += `💰 **Total:** ${formatSilver(total)} | 🛠️ **Rep:** -${formatSilver(repair)} | 👑 **Tax:** -${formatSilver(Math.max(0, total - repair)*taxPercent/100)} | ⚰️ **Reequipos:** -${formatSilver(totalRegears)}
+`;
+      text += `✅ **Neto Repartido:** ${formatSilver(globalNet)}
+
+`;
+      text += `**PAGOS:**
+`;
       
       finalPayouts.forEach(p => {
         let details = [];
@@ -312,17 +352,19 @@
         if(p.regear > 0) details.push(`Reequipo: +${formatExact(p.regear)}`);
         
         let detailString = details.length > 0 ? ` *(${details.join(', ')})*` : '';
-        let linkString = p.link ? ` - [Ver Muerte](${p.link})` : '';
+        let linkString = p.link ? ` - [Muerte](${p.link})` : '';
         
         if(p.net >= 0) {
-          text += `**@${p.name}** : ${formatExact(p.net)}${detailString}${linkString}\n`;
+          text += `**@${p.name}** : ${formatExact(p.net)}${detailString}${linkString}
+`;
         } else {
-          text += `**@${p.name}** : DEBE ${formatExact(Math.abs(p.net))}${detailString}${linkString}\n`;
+          text += `**@${p.name}** : DEBE ${formatExact(Math.abs(p.net))}${detailString}${linkString}
+`;
         }
       });
 
       navigator.clipboard.writeText(text).then(() => {
-        alert('¡Resumen copiado al portapapeles! Listo para pegar en Discord.');
+        alert('¡Resumen copiado! Listo para pegar en Discord.');
       });
     }
 
@@ -348,10 +390,8 @@
     function downloadPDF() {
       const actName = document.getElementById('activityName').value || 'Reparto';
       const actDate = document.getElementById('activityDate').value;
-      
       const hideElements = document.querySelectorAll('.no-pdf');
       hideElements.forEach(el => el.style.display = 'none');
-      
       const element = document.getElementById('pdf-content');
       
       const opt = {
