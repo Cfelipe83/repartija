@@ -24,6 +24,13 @@
       }
     }
   </script>
+  <style>
+    /* Ayuda extra para que el PDF no corte los elementos por la mitad */
+    .avoid-page-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+  </style>
 </head>
 <body class="bg-albion-dark text-gray-200 min-h-screen font-sans flex flex-col">
 
@@ -53,7 +60,7 @@
       
       <div class="xl:col-span-8 space-y-6">
         
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-page-break">
           <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">💰 Economía General</h2>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -74,7 +81,7 @@
           </div>
         </section>
 
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg overflow-x-auto">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg overflow-x-auto avoid-page-break">
           <div class="flex justify-between items-center mb-4 min-w-[700px]">
             <h2 class="text-xl font-bold text-white flex items-center gap-2">🛡️ Lista de Participantes</h2>
             <button onclick="addPlayer()" class="no-pdf bg-albion-accent hover:bg-amber-600 text-white text-sm font-bold py-1.5 px-4 rounded transition">
@@ -95,19 +102,19 @@
           </div>
         </section>
 
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-page-break">
           <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">🖼️ Capturas de Respaldo</h2>
           <label id="uploadBtn" class="no-pdf border-2 border-dashed border-albion-border hover:border-albion-gold rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer transition-colors bg-albion-dark/50 mb-4">
             <span class="text-sm text-gray-300 text-center">Haz clic para añadir capturas</span>
             <input type="file" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
           </label>
-          <div id="imageGallery" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+          <div id="imageGallery" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
         </section>
 
       </div>
 
       <div class="xl:col-span-4 space-y-6">
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-gold/40 shadow-xl relative overflow-hidden">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-gold/40 shadow-xl relative overflow-hidden avoid-page-break">
           <h2 class="text-xl font-bold text-white mb-6">Resumen Financiero</h2>
           <div class="space-y-3 text-sm">
             <div class="flex justify-between pb-2 border-b border-albion-border">
@@ -133,7 +140,7 @@
           </div>
         </section>
 
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg avoid-page-break">
           <h3 class="text-lg font-bold text-white mb-4 border-b border-albion-border pb-2">📋 Pagos Finales</h3>
           <div id="payoutList" class="space-y-2 text-sm max-h-none">
             <!-- JS Inject -->
@@ -146,7 +153,6 @@
   <script>
     document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
 
-    // Ahora los jugadores solo tienen su id, nombre, descuento (buyout), reequipo y link.
     let players = [
       { id: Date.now(), name: "Jugador 1", buyout: 0, regear: 0, link: "" }
     ];
@@ -222,7 +228,6 @@
       
       globalNet = Math.max(0, afterRepair - taxAmount - totalRegears);
 
-      // Ahora el valor se divide parejo por la cantidad de jugadores en la lista
       const valuePerPlayer = players.length > 0 ? (globalNet / players.length) : 0;
 
       document.getElementById('resTotal').innerText = formatSilver(total);
@@ -236,7 +241,6 @@
       finalPayouts = [];
 
       players.forEach(p => {
-        // La porción base es igual para todos
         const splitShare = valuePerPlayer;
         const netPayout = splitShare - p.buyout + p.regear;
 
@@ -308,7 +312,8 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           const card = document.createElement('div');
-          card.className = 'relative border border-albion-border rounded p-1 bg-black';
+          // Añadida la clase avoid-page-break para que la imagen pase completa a la siguiente página en el PDF
+          card.className = 'relative border border-albion-border rounded p-1 bg-black avoid-page-break';
           card.innerHTML = `
             <img src="${e.target.result}" class="w-full h-auto rounded object-contain">
             <button onclick="this.parentElement.remove()" class="no-pdf absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition">✕</button>
@@ -322,16 +327,24 @@
     function downloadPDF() {
       const actName = document.getElementById('activityName').value || 'Reparto';
       const actDate = document.getElementById('activityDate').value;
+      
       const hideElements = document.querySelectorAll('.no-pdf');
       hideElements.forEach(el => el.style.display = 'none');
+      
       const element = document.getElementById('pdf-content');
       
       const opt = {
         margin:       [10, 10, 10, 10],
         filename:     `Payout_${actDate}_${actName.replace(/\s+/g, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#121418' },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        html2canvas:  { 
+          scale: 2, 
+          useCORS: true, 
+          backgroundColor: '#121418',
+          windowWidth: 1200 // Forzamos el ancho de escritorio para que Tailwind no apile las columnas
+        },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] } // Evita cortes en elementos con avoid-page-break
       };
 
       html2pdf().set(opt).from(element).save().then(() => {
