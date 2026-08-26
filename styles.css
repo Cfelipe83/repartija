@@ -299,12 +299,11 @@ th { background-color: var(--input-bg); color: var(--text-muted); }
   margin: 12px 0 18px 0;
 }
 
-.pdf-metric-card {
-  background: #1a1e26;
-  border: 1px solid #2e3542;
-  border-top: 3px solid var(--gold);
-  padding: 10px;
-  border-radius: 4px;
+.pdf-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin: 12px 0 18px 0;
 }
 
 .pdf-table {
