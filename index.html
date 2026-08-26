@@ -138,6 +138,21 @@
       padding: 6px 8px;
     }
 
+    .kb-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--primary-hover);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .kb-link:hover {
+      text-decoration: underline;
+    }
+
     .status-badge {
       display: inline-block;
       padding: 4px 8px;
@@ -190,6 +205,7 @@
       border-radius: 4px;
       overflow: hidden;
       border: 1px solid var(--card-border);
+      cursor: pointer;
     }
 
     .evidence-thumb {
@@ -197,6 +213,11 @@
       height: 120px;
       object-fit: cover;
       display: block;
+      transition: transform 0.2s;
+    }
+
+    .evidence-card:hover .evidence-thumb {
+      transform: scale(1.03);
     }
 
     .btn-delete-img {
@@ -210,13 +231,14 @@
       border-radius: 3px;
       cursor: pointer;
       font-size: 0.7rem;
+      z-index: 2;
     }
 
-    /* Modal */
+    /* Modales */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.85);
       display: none;
       justify-content: center;
       align-items: center;
@@ -235,21 +257,103 @@
       gap: 16px;
     }
 
-    /* Print / PDF overrides */
-    .html2pdf__page-break { page-break-before: always; }
-    .no-export { display: block; }
-    .export-mode .no-export { display: none !important; }
-    .export-mode .btn-delete-img { display: none !important; }
+    .lightbox-img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    /* Print / PDF Document Layout */
+    #pdf-printable-doc {
+      display: none;
+      background-color: #ffffff;
+      color: #1a1a1a;
+      padding: 24px;
+      font-size: 11pt;
+    }
+
+    .pdf-mode #report-content { display: none !important; }
+    .pdf-mode #pdf-printable-doc { display: block !important; }
+
+    .pdf-header {
+      border-bottom: 2px solid #5e81ac;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .pdf-header h1 {
+      color: #2e3440;
+      font-size: 18pt;
+      margin: 0;
+      text-align: left;
+    }
+
+    .pdf-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 20px 0;
+    }
+
+    .pdf-table th, .pdf-table td {
+      border: 1px solid #d8dee9;
+      padding: 8px;
+      text-align: left;
+      font-size: 9.5pt;
+      color: #2e3440;
+    }
+
+    .pdf-table th {
+      background-color: #f4f6f9;
+      font-weight: bold;
+    }
+
+    .pdf-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 12px 0 20px 0;
+    }
+
+    .pdf-metric-card {
+      background: #f8fafc;
+      border: 1px solid #d8dee9;
+      padding: 8px;
+      border-radius: 4px;
+    }
+
+    .pdf-metric-card .title { font-size: 8pt; color: #4c566a; }
+    .pdf-metric-card .val { font-size: 11pt; font-weight: bold; color: #2e3440; margin-top: 2px; }
+
+    .pdf-gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 16px;
+    }
+
+    .pdf-full-img {
+      width: 100%;
+      max-height: 800px;
+      object-fit: contain;
+      border: 1px solid #d8dee9;
+      page-break-inside: avoid;
+    }
   </style>
 </head>
 <body>
 
+<!-- VISTA INTERACTIVA WEB -->
 <div class="container" id="report-content">
 
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
       <h1>⚔️ Albion Online - Payouts Pro</h1>
-      <button class="btn btn-secondary no-export" style="font-size: 0.75rem;" onclick="resetSession()">🔄 Reiniciar Todo</button>
+      <button class="btn btn-secondary" style="font-size: 0.75rem;" onclick="resetSession()">🔄 Reiniciar Todo</button>
     </div>
     <div class="grid-form" style="margin-top: 12px;">
       <div class="form-group">
@@ -283,7 +387,7 @@
 
   <div class="card">
     <h2>2. Participantes</h2>
-    <div class="actions-bar no-export" style="margin-bottom: 12px;">
+    <div class="actions-bar" style="margin-bottom: 12px;">
       <button class="btn btn-primary" onclick="addPlayer()">+ Añadir Jugador</button>
       <button class="btn btn-secondary" onclick="openBulkModal()">📥 Importar Lista (Paste)</button>
     </div>
@@ -295,12 +399,10 @@
             <th>Descuento / Buyout (Silver)</th>
             <th>Re-equipo Solicitado (Silver)</th>
             <th>Killboard URL</th>
-            <th class="no-export">Acción</th>
+            <th>Acción</th>
           </tr>
         </thead>
-        <tbody id="player-rows">
-          <!-- Inyección dinámica -->
-        </tbody>
+        <tbody id="player-rows"></tbody>
       </table>
     </div>
   </div>
@@ -344,32 +446,81 @@
             <th>Estado</th>
           </tr>
         </thead>
-        <tbody id="payout-rows">
-          <!-- Inyección dinámica -->
-        </tbody>
+        <tbody id="payout-rows"></tbody>
       </table>
     </div>
   </div>
 
   <div class="card">
     <h2>5. Respaldo Visual (Capturas de Pantalla)</h2>
-    <div class="no-export" style="margin-bottom: 12px;">
+    <div style="margin-bottom: 12px;">
       <input type="file" id="evidence-input" accept="image/*" multiple onchange="handleImageUpload(event)">
-      <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 8px;">(Auto-optimizadas para PDF)</span>
+      <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 8px;">(Haz clic en una miniatura para verla en grande)</span>
     </div>
-    <div class="evidence-grid" id="evidence-gallery">
-      <!-- Inyección dinámica -->
-    </div>
+    <div class="evidence-grid" id="evidence-gallery"></div>
   </div>
 
-  <div class="actions-bar no-export">
+  <div class="actions-bar">
     <button class="btn btn-warning" onclick="copyDiscordMarkdown()">📋 Copiar para Discord</button>
     <button class="btn btn-success" onclick="exportPDF()">📄 Descargar Reporte PDF</button>
   </div>
 
 </div>
 
-<!-- Modal Paste Nicks -->
+<!-- PLANTILLA FORMAL PARA PDF (OCULTA EN WEB, ACTIVA EN EXPORT) -->
+<div id="pdf-printable-doc">
+  <div class="pdf-header">
+    <div>
+      <h1 id="pdf-title">REPORTE FINANCIERO DE BOTÍN</h1>
+      <div style="font-size: 9pt; color: #4c566a; margin-top: 4px;" id="pdf-subtitle">Albion Online - Payouts Pro</div>
+    </div>
+    <div style="text-align: right; font-size: 9pt; color: #4c566a;">
+      <div><strong>Fecha:</strong> <span id="pdf-date-val"></span></div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 11pt; margin-bottom: 6px; color: #2e3440;">Resumen General</h3>
+  <div class="pdf-summary-grid">
+    <div class="pdf-metric-card">
+      <div class="title">Botín Bruto</div>
+      <div class="val" id="pdf-gross-loot">0</div>
+    </div>
+    <div class="pdf-metric-card">
+      <div class="title">Reparaciones / Tax</div>
+      <div class="val" id="pdf-deductions">0</div>
+    </div>
+    <div class="pdf-metric-card">
+      <div class="title">Fondo Re-equipos</div>
+      <div class="val" id="pdf-regear-total">0</div>
+    </div>
+    <div class="pdf-metric-card">
+      <div class="title">Corte por Jugador</div>
+      <div class="val" id="pdf-base-cut">0</div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 11pt; margin-bottom: 6px; color: #2e3440;">Liquidación de Pagos</h3>
+  <table class="pdf-table">
+    <thead>
+      <tr>
+        <th>Jugador</th>
+        <th>Corte Base</th>
+        <th>Re-equipo (+)</th>
+        <th>Descuento (-)</th>
+        <th>Balance Neto</th>
+        <th>Killboard</th>
+      </tr>
+    </thead>
+    <tbody id="pdf-payout-rows"></tbody>
+  </table>
+
+  <div id="pdf-images-section" style="page-break-before: always; display: none;">
+    <h3 style="font-size: 11pt; margin-bottom: 12px; color: #2e3440; border-bottom: 1px solid #d8dee9; padding-bottom: 4px;">Anexo: Respaldos Visuales</h3>
+    <div class="pdf-gallery" id="pdf-gallery-container"></div>
+  </div>
+</div>
+
+<!-- MODAL PASTE NICKS -->
 <div class="modal-overlay" id="bulk-modal">
   <div class="modal-box">
     <h3>Importar Participantes</h3>
@@ -382,9 +533,14 @@
   </div>
 </div>
 
+<!-- MODAL LIGHTBOX / PANTALLA COMPLETA -->
+<div class="modal-overlay" id="lightbox-modal" onclick="closeLightbox()">
+  <img id="lightbox-img" class="lightbox-img" src="" alt="Vista Previa">
+</div>
+
 <script>
   let players = [];
-  let evidenceImages = []; // Base64 strings
+  let evidenceImages = [];
 
   const STORAGE_KEY = "albion_payouts_pro_state";
 
@@ -397,7 +553,6 @@
     return Math.round(val).toLocaleString('es-CL');
   }
 
-  // Persistencia
   function saveState() {
     const state = {
       partyName: document.getElementById('party-name').value,
@@ -486,6 +641,20 @@
     } else {
       player[field] = value;
     }
+    
+    // Si cambia el link, actualizar el botón directo
+    if (field === 'killboard') {
+      const linkEl = document.getElementById(`kb-link-${id}`);
+      if (linkEl) {
+        if (value.trim().startsWith('http')) {
+          linkEl.href = value.trim();
+          linkEl.style.display = 'inline-flex';
+        } else {
+          linkEl.style.display = 'none';
+        }
+      }
+    }
+
     calculateAll();
     saveState();
   }
@@ -496,18 +665,21 @@
 
     players.forEach(p => {
       const tr = document.createElement('tr');
+      const hasUrl = p.killboard && p.killboard.trim().startsWith('http');
       tr.innerHTML = `
         <td><input type="text" class="table-input" value="${p.name}" placeholder="Nick" oninput="updatePlayerField('${p.id}', 'name', this.value)"></td>
         <td><input type="number" class="table-input" min="0" value="${p.buyout || ''}" placeholder="0" oninput="updatePlayerField('${p.id}', 'buyout', this.value)"></td>
         <td><input type="number" class="table-input" min="0" value="${p.regear || ''}" placeholder="0" oninput="updatePlayerField('${p.id}', 'regear', this.value)"></td>
-        <td><input type="url" class="table-input" value="${p.killboard}" placeholder="https://..." oninput="updatePlayerField('${p.id}', 'killboard', this.value)"></td>
-        <td class="no-export"><button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="removePlayer('${p.id}')">Eliminar</button></td>
+        <td>
+          <input type="url" class="table-input" value="${p.killboard}" placeholder="https://..." oninput="updatePlayerField('${p.id}', 'killboard', this.value)">
+          <a id="kb-link-${p.id}" class="kb-link" href="${p.killboard}" target="_blank" style="display: ${hasUrl ? 'inline-flex' : 'none'};">🔗 Ver Killboard</a>
+        </td>
+        <td><button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="removePlayer('${p.id}')">Eliminar</button></td>
       `;
       tbody.appendChild(tr);
     });
   }
 
-  // Listeners economía
   ['total-loot', 'repairs', 'guild-tax'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => {
       calculateAll();
@@ -528,7 +700,6 @@
     const totalPlayersCount = players.length;
     const baseSplit = totalPlayersCount > 0 ? distributableNet / totalPlayersCount : 0;
 
-    // Alerta de déficit
     const alertBox = document.getElementById('deficit-alert');
     if (rawNet < 0) {
       alertBox.style.display = "block";
@@ -537,13 +708,11 @@
       alertBox.style.display = "none";
     }
 
-    // Actualizar Resumen
     document.getElementById('disp-tax').innerText = formatSilver(taxAmount);
     document.getElementById('disp-regear-pool').innerText = formatSilver(totalRegearPool);
     document.getElementById('disp-distributable').innerText = formatSilver(distributableNet);
     document.getElementById('disp-base-split').innerText = formatSilver(baseSplit);
 
-    // Render Pagos Finales
     const payoutBody = document.getElementById('payout-rows');
     payoutBody.innerHTML = "";
 
@@ -572,7 +741,6 @@
     });
   }
 
-  // Modales Fast Paste
   function openBulkModal() {
     document.getElementById('bulk-modal').style.display = "flex";
   }
@@ -586,7 +754,6 @@
     const raw = document.getElementById('bulk-nicks').value;
     const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
     
-    // Si sólo había un default vacío sin datos, lo reemplazamos
     if (players.length === 1 && players[0].name === "Jugador 1" && players[0].buyout === 0 && players[0].regear === 0) {
       players = [];
     }
@@ -607,7 +774,6 @@
     closeBulkModal();
   }
 
-  // Manejo de Imágenes optimizadas vía Canvas
   function handleImageUpload(e) {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -618,7 +784,7 @@
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const maxDim = 1200;
+          const maxDim = 1600;
           let width = img.width;
           let height = img.height;
 
@@ -637,7 +803,7 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
           evidenceImages.push(compressedBase64);
           renderGallery();
           saveState();
@@ -650,7 +816,8 @@
     e.target.value = "";
   }
 
-  function removeImage(index) {
+  function removeImage(e, index) {
+    e.stopPropagation();
     evidenceImages.splice(index, 1);
     renderGallery();
     saveState();
@@ -663,12 +830,25 @@
     evidenceImages.forEach((src, idx) => {
       const wrapper = document.createElement('div');
       wrapper.className = "evidence-card";
+      wrapper.onclick = () => openLightbox(src);
       wrapper.innerHTML = `
         <img src="${src}" class="evidence-thumb" alt="Respaldo ${idx + 1}">
-        <button class="btn-delete-img" onclick="removeImage(${idx})">✕</button>
+        <button class="btn-delete-img" onclick="removeImage(event, ${idx})">✕</button>
       `;
       gallery.appendChild(wrapper);
     });
+  }
+
+  // Lightbox
+  function openLightbox(src) {
+    const modal = document.getElementById('lightbox-modal');
+    document.getElementById('lightbox-img').src = src;
+    modal.style.display = "flex";
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox-modal').style.display = "none";
+    document.getElementById('lightbox-img').src = "";
   }
 
   function copyDiscordMarkdown() {
@@ -706,13 +886,65 @@
     });
   }
 
+  // Generador de reporte limpio para PDF
   function exportPDF() {
-    const element = document.getElementById('report-content');
-    element.classList.add('export-mode');
+    const partyName = document.getElementById('party-name').value || 'Reparto';
+    const partyDate = document.getElementById('party-date').value;
+    const totalLoot = sanitize(document.getElementById('total-loot').value);
+    const repairs = sanitize(document.getElementById('repairs').value);
+    const taxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
+    const taxAmount = (totalLoot * taxPercent) / 100;
+    const totalRegear = players.reduce((sum, p) => sum + p.regear, 0);
+    const distributableNet = Math.max(0, totalLoot - repairs - taxAmount - totalRegear);
+    const baseSplit = players.length > 0 ? distributableNet / players.length : 0;
+
+    // Llenar vista documental
+    document.getElementById('pdf-title').innerText = `LIQUIDACIÓN: ${partyName.toUpperCase()}`;
+    document.getElementById('pdf-date-val').innerText = partyDate;
+    document.getElementById('pdf-gross-loot').innerText = formatSilver(totalLoot);
+    document.getElementById('pdf-deductions').innerText = `${formatSilver(repairs + taxAmount)} (${taxPercent}% Tax)`;
+    document.getElementById('pdf-regear-total').innerText = formatSilver(totalRegear);
+    document.getElementById('pdf-base-cut').innerText = formatSilver(baseSplit);
+
+    const pdfTbody = document.getElementById('pdf-payout-rows');
+    pdfTbody.innerHTML = "";
+    players.forEach(p => {
+      const balance = baseSplit + p.regear - p.buyout;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${p.name || 'Sin nombre'}</strong></td>
+        <td>${formatSilver(baseSplit)}</td>
+        <td style="color: #2e7d32;">${p.regear > 0 ? '+' + formatSilver(p.regear) : '-'}</td>
+        <td style="color: #c62828;">${p.buyout > 0 ? '-' + formatSilver(p.buyout) : '-'}</td>
+        <td><strong>${formatSilver(balance)}</strong> (${balance >= 0 ? 'RECIBE' : 'DEBE'})</td>
+        <td style="font-size: 8pt; word-break: break-all;">${p.killboard || '-'}</td>
+      `;
+      pdfTbody.appendChild(tr);
+    });
+
+    const pdfImagesSection = document.getElementById('pdf-images-section');
+    const pdfGallery = document.getElementById('pdf-gallery-container');
+    pdfGallery.innerHTML = "";
+
+    if (evidenceImages.length > 0) {
+      pdfImagesSection.style.display = "block";
+      evidenceImages.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'pdf-full-img';
+        pdfGallery.appendChild(img);
+      });
+    } else {
+      pdfImagesSection.style.display = "none";
+    }
+
+    // Activar modo PDF
+    document.body.classList.add('pdf-mode');
+    const element = document.getElementById('pdf-printable-doc');
 
     const opt = {
       margin: [10, 10, 10, 10],
-      filename: `Payout_${document.getElementById('party-name').value.replace(/\s+/g, '_')}_${document.getElementById('party-date').value}.pdf`,
+      filename: `Payout_${partyName.replace(/\s+/g, '_')}_${partyDate}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -720,14 +952,13 @@
     };
 
     html2pdf().set(opt).from(element).save().then(() => {
-      element.classList.remove('export-mode');
+      document.body.classList.remove('pdf-mode');
     }).catch(err => {
       console.error(err);
-      element.classList.remove('export-mode');
+      document.body.classList.remove('pdf-mode');
     });
   }
 
-  // Arrancar aplicación
   loadState();
 </script>
 
