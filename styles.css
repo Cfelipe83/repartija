@@ -348,25 +348,44 @@ th { background-color: var(--input-bg); color: var(--text-muted); }
   margin-bottom: 12px;
   page-break-inside: avoid;
 }
-/* Nombre del jugador destacado en la Web */
+/* Color temático Jelly Order para los Nombres de Jugadores */
 .player-name-highlight {
   font-size: 1.05rem !important;
   font-weight: 700 !important;
-  color: #f0c642 !important;
+  color: #ff5263 !important; /* Rojo Jelly Order brillante */
   letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
-/* Nombre del jugador en inputs de edición */
+/* Input de edición de Nick */
 .table-input-player {
   font-size: 0.95rem !important;
   font-weight: 700 !important;
-  color: #f0c642 !important;
+  color: #ff5263 !important;
+  border-left: 3px solid #b81424 !important;
 }
 
-/* Nombre del jugador destacado en el PDF */
+/* Nombre del jugador en el PDF */
 .pdf-player-name {
-  font-size: 11pt !important;
+  font-size: 10.5pt !important;
   font-weight: 800 !important;
-  color: #d4af37 !important;
+  color: #ff4757 !important; /* Rojo de alto contraste para el reporte */
   display: block;
+}
+
+/* Títulos de sección (diferenciados, plata y acero) */
+h2 {
+  font-size: 1.15rem;
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 8px;
+  color: #d8dee9; /* Acero claro, no rojo */
+}
+
+/* Título de PDF */
+.pdf-title-gold {
+  color: var(--gold);
+  font-size: 18pt;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
