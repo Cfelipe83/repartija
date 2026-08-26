@@ -25,14 +25,13 @@
     }
   </script>
   <style>
-    /* Ayuda extra para que el PDF no corte los elementos por la mitad */
     .avoid-page-break {
       page-break-inside: avoid;
       break-inside: avoid;
     }
   </style>
 </head>
-<body class="bg-albion-dark text-gray-200 min-h-screen font-sans flex flex-col">
+<body class="bg-albion-dark text-gray-200 min-h-screen font-sans flex flex-col items-center">
 
   <div class="max-w-7xl mx-auto w-full px-4 pt-6 flex flex-wrap justify-end gap-3 no-pdf">
     <button onclick="copyToDiscord()" class="bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition">
@@ -43,7 +42,7 @@
     </button>
   </div>
 
-  <div id="pdf-content" class="bg-albion-dark pb-8 mt-4">
+  <div id="pdf-content" class="bg-albion-dark pb-8 mt-4 w-full">
     
     <header class="border-b border-albion-border bg-albion-card/80 py-6 mb-6">
       <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
@@ -312,7 +311,6 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           const card = document.createElement('div');
-          // Añadida la clase avoid-page-break para que la imagen pase completa a la siguiente página en el PDF
           card.className = 'relative border border-albion-border rounded p-1 bg-black avoid-page-break';
           card.innerHTML = `
             <img src="${e.target.result}" class="w-full h-auto rounded object-contain">
@@ -333,22 +331,33 @@
       
       const element = document.getElementById('pdf-content');
       
+      // FORZAR ANCHO: Esto soluciona que las columnas se aplasten en pantallas pequeñas
+      const originalWidth = element.style.width;
+      const originalMaxWidth = element.style.maxWidth;
+      element.style.width = '1200px';
+      element.style.maxWidth = '1200px';
+      
       const opt = {
-        margin:       [10, 10, 10, 10],
+        margin:       10, // mm
         filename:     `Payout_${actDate}_${actName.replace(/\s+/g, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { 
           scale: 2, 
           useCORS: true, 
           backgroundColor: '#121418',
-          windowWidth: 1200 // Forzamos el ancho de escritorio para que Tailwind no apile las columnas
+          scrollY: 0,  // <-- ESTA ES LA SOLUCIÓN AL BUG DE LA PANTALLA NEGRA
+          scrollX: 0,
+          windowWidth: 1200 
         },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] } // Evita cortes en elementos con avoid-page-break
+        pagebreak:    { mode: 'avoid-all' }
       };
 
       html2pdf().set(opt).from(element).save().then(() => {
+        // Restauramos los valores originales después de descargar el PDF
         hideElements.forEach(el => el.style.display = '');
+        element.style.width = originalWidth;
+        element.style.maxWidth = originalMaxWidth;
       });
     }
 
