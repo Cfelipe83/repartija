@@ -46,7 +46,6 @@
       gap: 16px;
     }
 
-    /* Tabs */
     .tabs-nav {
       display: flex;
       gap: 8px;
@@ -274,7 +273,7 @@
       box-shadow: 0 8px 30px rgba(0,0,0,0.8);
     }
 
-    /* PDF Estilizado y Colorido (Impresión) */
+    /* PDF Estilizado */
     #pdf-printable-doc {
       display: none;
       background: #11141a;
@@ -321,7 +320,7 @@
     .pdf-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 10px 0 20px 0;
+      margin: 10px 0 18px 0;
     }
 
     .pdf-table th {
@@ -390,20 +389,6 @@
             <label for="party-date">Fecha</label>
             <input type="date" id="party-date" onchange="saveCurrentState()">
           </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>1. Economía General</h2>
-        <div class="grid-form">
-          <div class="form-group">
-            <label for="total-loot">Botín Total Estimado (Silver)</label>
-            <input type="number" id="total-loot" min="0" value="0" placeholder="0">
-          </div>
-          <div class="form-group">
-            <label for="repairs">Costo Reparaciones (Silver)</label>
-            <input type="number" id="repairs" min="0" value="0" placeholder="0">
-          </div>
           <div class="form-group">
             <label for="guild-tax">Impuesto de Gremio (%)</label>
             <input type="number" id="guild-tax" min="0" max="100" value="0" placeholder="0">
@@ -411,6 +396,28 @@
         </div>
       </div>
 
+      <!-- 1. GESTIÓN DE COFRES (Múltiples entradas) -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <h2>1. Botín por Cofres / Drops</h2>
+          <button class="btn btn-gold" onclick="addChest()">+ Añadir Cofre</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Identificador / Nombre del Cofre</th>
+                <th>Botín / Silver Estimado</th>
+                <th>Costo Reparaciones (Silver)</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="chest-rows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. PARTICIPANTES -->
       <div class="card">
         <h2>2. Participantes</h2>
         <div class="actions-bar" style="margin-bottom: 12px;">
@@ -433,9 +440,18 @@
         </div>
       </div>
 
+      <!-- 3. RESUMEN FINANCIERO -->
       <div class="card">
-        <h2>3. Resumen Financiero</h2>
+        <h2>3. Resumen Financiero Consolidado</h2>
         <div class="summary-metrics">
+          <div class="metric-box">
+            <div class="metric-title">Total Botín Bruto (Cofres)</div>
+            <div class="metric-value" id="disp-total-loot">0</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-title">Reparaciones Totales</div>
+            <div class="metric-value" id="disp-total-repairs">0</div>
+          </div>
           <div class="metric-box">
             <div class="metric-title">Impuesto Gremio Cobrado</div>
             <div class="metric-value" id="disp-tax">0</div>
@@ -458,6 +474,7 @@
         </div>
       </div>
 
+      <!-- 4. PAGOS FINALES -->
       <div class="card">
         <h2>4. Pagos Finales Calculados</h2>
         <div style="overflow-x: auto;">
@@ -477,6 +494,7 @@
         </div>
       </div>
 
+      <!-- 5. RESPALDO VISUAL -->
       <div class="card">
         <h2>5. Respaldo Visual (Capturas de Pantalla)</h2>
         <div style="margin-bottom: 12px;">
@@ -495,7 +513,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA 2: LIBRO CONTABLE (HISTORIAL & DEUDAS) -->
+  <!-- PESTAÑA 2: LIBRO CONTABLE -->
   <div class="tab-pane" id="tab-ledger">
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -519,15 +537,13 @@
 
     <div class="card">
       <h2>📁 Historial de Partys Guardadas</h2>
-      <div id="ledger-sessions-container" style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
-        <!-- Inyección dinámica de sesiones -->
-      </div>
+      <div id="ledger-sessions-container" style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;"></div>
     </div>
   </div>
 
 </div>
 
-<!-- PLANTILLA ESTILIZADA PARA EXPORTACIÓN PDF -->
+<!-- PLANTILLA FORMAL PARA PDF -->
 <div id="pdf-printable-doc">
   <div class="pdf-header">
     <div>
@@ -539,10 +555,22 @@
     </div>
   </div>
 
-  <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;">Resumen Económico</div>
+  <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;">Desglose de Cofres Registrados</div>
+  <table class="pdf-table">
+    <thead>
+      <tr>
+        <th>Cofre / Drop</th>
+        <th>Botín Silver</th>
+        <th>Reparaciones</th>
+      </tr>
+    </thead>
+    <tbody id="pdf-chest-rows"></tbody>
+  </table>
+
+  <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;">Resumen Económico Consolidado</div>
   <div class="pdf-summary-grid">
     <div class="pdf-metric-card">
-      <div style="font-size: 7.5pt; color: var(--text-muted);">BOTÍN BRUTO</div>
+      <div style="font-size: 7.5pt; color: var(--text-muted);">BOTÍN BRUTO TOTAL</div>
       <div style="font-size: 11pt; font-weight: bold; color: #fff; margin-top: 2px;" id="pdf-gross-loot">0</div>
     </div>
     <div class="pdf-metric-card">
@@ -559,7 +587,7 @@
     </div>
   </div>
 
-  <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;">Desglose de Liquidación</div>
+  <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;">Liquidación de Pagos</div>
   <table class="pdf-table">
     <thead>
       <tr>
@@ -599,9 +627,10 @@
 </div>
 
 <script>
+  let chests = [];
   let players = [];
   let evidenceImages = [];
-  let ledgerSessions = []; // Historial de partidas guardadas
+  let ledgerSessions = [];
 
   const CURRENT_STATE_KEY = "albion_payouts_pro_state";
   const LEDGER_KEY = "albion_payouts_pro_ledger";
@@ -615,7 +644,6 @@
     return Math.round(val).toLocaleString('es-CL');
   }
 
-  // Pestañas
   function switchTab(tabId) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
@@ -635,9 +663,8 @@
     const state = {
       partyName: document.getElementById('party-name').value,
       partyDate: document.getElementById('party-date').value,
-      totalLoot: document.getElementById('total-loot').value,
-      repairs: document.getElementById('repairs').value,
       guildTax: document.getElementById('guild-tax').value,
+      chests: chests,
       players: players,
       evidenceImages: evidenceImages
     };
@@ -657,6 +684,7 @@
     const raw = localStorage.getItem(CURRENT_STATE_KEY);
     if (!raw) {
       document.getElementById('party-date').valueAsDate = new Date();
+      addChest("Cofre 1");
       addPlayer("Jugador 1");
       return;
     }
@@ -665,32 +693,89 @@
       const state = JSON.parse(raw);
       document.getElementById('party-name').value = state.partyName || "Gank / Roaming Session";
       document.getElementById('party-date').value = state.partyDate || new Date().toISOString().split('T')[0];
-      document.getElementById('total-loot').value = state.totalLoot || 0;
-      document.getElementById('repairs').value = state.repairs || 0;
       document.getElementById('guild-tax').value = state.guildTax || 0;
+      chests = state.chests && state.chests.length > 0 ? state.chests : [];
       players = state.players && state.players.length > 0 ? state.players : [];
       evidenceImages = state.evidenceImages || [];
 
+      if (chests.length === 0) addChest("Cofre 1");
       if (players.length === 0) addPlayer("Jugador 1");
+
+      renderChestsTable();
       renderPlayersTable();
       renderGallery();
       calculateAll();
     } catch (e) {
+      addChest("Cofre 1");
       addPlayer("Jugador 1");
     }
   }
 
   function resetCurrentSession() {
-    if (!confirm("¿Deseas vaciar los campos del formulario actual? (No borrará el historial guardado)")) return;
+    if (!confirm("¿Deseas vaciar los campos del formulario actual?")) return;
+    chests = [];
     players = [];
     evidenceImages = [];
-    document.getElementById('total-loot').value = 0;
-    document.getElementById('repairs').value = 0;
     document.getElementById('guild-tax').value = 0;
     document.getElementById('party-name').value = "Gank / Roaming Session";
     document.getElementById('party-date').valueAsDate = new Date();
+    addChest("Cofre 1");
     addPlayer("Jugador 1");
     saveCurrentState();
+  }
+
+  // Gestión de Cofres
+  function addChest(defaultName = "") {
+    const id = Date.now() + Math.random().toString(36).substr(2, 4);
+    chests.push({
+      id: id,
+      name: defaultName || `Cofre ${chests.length + 1}`,
+      loot: 0,
+      repairs: 0
+    });
+    renderChestsTable();
+    calculateAll();
+    saveCurrentState();
+  }
+
+  function removeChest(id) {
+    if (chests.length <= 1) {
+      alert("Debe existir al menos un cofre en el reparto.");
+      return;
+    }
+    chests = chests.filter(c => c.id !== id);
+    renderChestsTable();
+    calculateAll();
+    saveCurrentState();
+  }
+
+  function updateChestField(id, field, value) {
+    const chest = chests.find(c => c.id === id);
+    if (!chest) return;
+
+    if (field === 'loot' || field === 'repairs') {
+      chest[field] = sanitize(value);
+    } else {
+      chest[field] = value;
+    }
+    calculateAll();
+    saveCurrentState();
+  }
+
+  function renderChestsTable() {
+    const tbody = document.getElementById('chest-rows');
+    tbody.innerHTML = "";
+
+    chests.forEach(c => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" class="table-input" value="${c.name}" placeholder="Ej: Cofre Avalon / Botín 1" oninput="updateChestField('${c.id}', 'name', this.value)"></td>
+        <td><input type="number" class="table-input" min="0" value="${c.loot || ''}" placeholder="0" oninput="updateChestField('${c.id}', 'loot', this.value)"></td>
+        <td><input type="number" class="table-input" min="0" value="${c.repairs || ''}" placeholder="0" oninput="updateChestField('${c.id}', 'repairs', this.value)"></td>
+        <td><button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="removeChest('${c.id}')">Eliminar</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 
   // Jugadores Form
@@ -762,22 +847,21 @@
     });
   }
 
-  ['total-loot', 'repairs', 'guild-tax'].forEach(id => {
-    document.getElementById(id).addEventListener('input', () => {
-      calculateAll();
-      saveCurrentState();
-    });
+  document.getElementById('guild-tax').addEventListener('input', () => {
+    calculateAll();
+    saveCurrentState();
   });
 
+  // Cálculo consolidado de Cofres y Jugadores
   function calculateAll() {
-    const totalLoot = sanitize(document.getElementById('total-loot').value);
-    const repairs = sanitize(document.getElementById('repairs').value);
+    const totalLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    const totalRepairs = chests.reduce((sum, c) => sum + c.repairs, 0);
     const taxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
 
     const totalRegearPool = players.reduce((sum, p) => sum + p.regear, 0);
     const taxAmount = (totalLoot * taxPercent) / 100;
     
-    const rawNet = totalLoot - repairs - taxAmount - totalRegearPool;
+    const rawNet = totalLoot - totalRepairs - taxAmount - totalRegearPool;
     const distributableNet = Math.max(0, rawNet);
     const totalPlayersCount = players.length;
     const baseSplit = totalPlayersCount > 0 ? distributableNet / totalPlayersCount : 0;
@@ -790,6 +874,8 @@
       alertBox.style.display = "none";
     }
 
+    document.getElementById('disp-total-loot').innerText = formatSilver(totalLoot);
+    document.getElementById('disp-total-repairs').innerText = formatSilver(totalRepairs);
     document.getElementById('disp-tax').innerText = formatSilver(taxAmount);
     document.getElementById('disp-regear-pool').innerText = formatSilver(totalRegearPool);
     document.getElementById('disp-distributable').innerText = formatSilver(distributableNet);
@@ -823,16 +909,15 @@
     });
   }
 
-  // Guardar Sesión en Historial / Libro Contable
   function commitSessionToLedger() {
     const activity = document.getElementById('party-name').value || 'Reparto';
     const date = document.getElementById('party-date').value;
-    const totalLoot = sanitize(document.getElementById('total-loot').value);
-    const repairs = sanitize(document.getElementById('repairs').value);
+    const totalLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    const totalRepairs = chests.reduce((sum, c) => sum + c.repairs, 0);
     const taxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
     const taxAmount = (totalLoot * taxPercent) / 100;
     const totalRegear = players.reduce((sum, p) => sum + p.regear, 0);
-    const distributableNet = Math.max(0, totalLoot - repairs - taxAmount - totalRegear);
+    const distributableNet = Math.max(0, totalLoot - totalRepairs - taxAmount - totalRegear);
     const baseSplit = players.length > 0 ? distributableNet / players.length : 0;
 
     const sessionData = {
@@ -840,10 +925,11 @@
       name: activity,
       date: date,
       baseSplit: baseSplit,
+      chestsSummary: chests.map(c => ({ name: c.name, loot: c.loot, repairs: c.repairs })),
       players: players.map(p => ({
         name: (p.name || "Sin nombre").trim(),
         balance: baseSplit + p.regear - p.buyout,
-        paid: false // Estado de liquidación
+        paid: false
       }))
     };
 
@@ -852,14 +938,12 @@
     alert(`¡Sesión "${activity}" guardada en el Libro Contable!`);
   }
 
-  // Render Pestaña 2: Ledger
   function renderLedger() {
-    // 1. Resumen consolidado acumulado
     const consolidated = {};
 
     ledgerSessions.forEach(session => {
       session.players.forEach(p => {
-        if (!p.paid) { // Solo consideramos los no saldados
+        if (!p.paid) {
           const key = p.name.toLowerCase();
           if (!consolidated[key]) {
             consolidated[key] = { displayName: p.name, netBalance: 0, pendingParties: 0 };
@@ -894,7 +978,6 @@
       });
     }
 
-    // 2. Desglose por Partys Guardadas
     const sessContainer = document.getElementById('ledger-sessions-container');
     sessContainer.innerHTML = "";
 
@@ -961,7 +1044,6 @@
     renderLedger();
   }
 
-  // Modales Fast Paste
   function openBulkModal() { document.getElementById('bulk-modal').style.display = "flex"; }
   function closeBulkModal() {
     document.getElementById('bulk-modal').style.display = "none";
@@ -992,7 +1074,6 @@
     closeBulkModal();
   }
 
-  // Manejo de Imágenes
   function handleImageUpload(e) {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -1070,13 +1151,21 @@
   function copyDiscordMarkdown() {
     const activity = document.getElementById('party-name').value || 'Reparto';
     const date = document.getElementById('party-date').value;
-    const totalLoot = sanitize(document.getElementById('total-loot').value);
+    const totalLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    const totalRepairs = chests.reduce((sum, c) => sum + c.repairs, 0);
     const baseSplit = document.getElementById('disp-base-split').innerText;
 
     let md = `📦 **REPARTO DE BOTÍN: ${activity.toUpperCase()}** (${date})\n`;
-    md += `💰 **Total Botín:** \`${formatSilver(totalLoot)} Silver\`\n`;
+    md += `💰 **Total Botín (${chests.length} cofres):** \`${formatSilver(totalLoot)} Silver\`\n`;
+    md += `🛠️ **Reparaciones Totales:** \`${formatSilver(totalRepairs)} Silver\`\n`;
     md += `⚖️ **Corte Base:** \`${baseSplit} Silver / persona\`\n\n`;
-    md += `**Desglose de Pagos:**\n\`\`\`diff\n`;
+    
+    md += `**Desglose de Cofres:**\n`;
+    chests.forEach(c => {
+      md += `* ${c.name}: ${formatSilver(c.loot)} Silver (Rep: ${formatSilver(c.repairs)})\n`;
+    });
+
+    md += `\n**Desglose de Pagos:**\n\`\`\`diff\n`;
 
     const distributableNet = parseFloat(document.getElementById('disp-distributable').innerText.replace(/\./g, ''));
     const baseSplitVal = players.length > 0 ? distributableNet / players.length : 0;
@@ -1102,25 +1191,38 @@
     });
   }
 
-  // Exportar PDF Estilizado
   function exportPDF() {
     const partyName = document.getElementById('party-name').value || 'Reparto';
     const partyDate = document.getElementById('party-date').value;
-    const totalLoot = sanitize(document.getElementById('total-loot').value);
-    const repairs = sanitize(document.getElementById('repairs').value);
+    const totalLoot = chests.reduce((sum, c) => sum + c.loot, 0);
+    const totalRepairs = chests.reduce((sum, c) => sum + c.repairs, 0);
     const taxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
     const taxAmount = (totalLoot * taxPercent) / 100;
     const totalRegear = players.reduce((sum, p) => sum + p.regear, 0);
-    const distributableNet = Math.max(0, totalLoot - repairs - taxAmount - totalRegear);
+    const distributableNet = Math.max(0, totalLoot - totalRepairs - taxAmount - totalRegear);
     const baseSplit = players.length > 0 ? distributableNet / players.length : 0;
 
     document.getElementById('pdf-title').innerText = `LIQUIDACIÓN: ${partyName.toUpperCase()}`;
     document.getElementById('pdf-date-val').innerText = partyDate;
     document.getElementById('pdf-gross-loot').innerText = formatSilver(totalLoot);
-    document.getElementById('pdf-deductions').innerText = `${formatSilver(repairs + taxAmount)} (${taxPercent}% Tax)`;
+    document.getElementById('pdf-deductions').innerText = `${formatSilver(totalRepairs + taxAmount)} (${taxPercent}% Tax)`;
     document.getElementById('pdf-regear-total').innerText = formatSilver(totalRegear);
     document.getElementById('pdf-base-cut').innerText = formatSilver(baseSplit);
 
+    // Render Cofres en PDF
+    const pdfChestBody = document.getElementById('pdf-chest-rows');
+    pdfChestBody.innerHTML = "";
+    chests.forEach(c => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:#fff;"><strong>${c.name}</strong></td>
+        <td>${formatSilver(c.loot)} Silver</td>
+        <td style="color: var(--warning);">${formatSilver(c.repairs)} Silver</td>
+      `;
+      pdfChestBody.appendChild(tr);
+    });
+
+    // Render Pagos en PDF
     const pdfTbody = document.getElementById('pdf-payout-rows');
     pdfTbody.innerHTML = "";
     players.forEach(p => {
