@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Albion Online - Payouts Pro</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- html2pdf.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     tailwind.config = {
@@ -29,40 +27,35 @@
 </head>
 <body class="bg-albion-dark text-gray-200 min-h-screen font-sans flex flex-col">
 
-  <!-- Botones de Acción Superiores (No salen en PDF) -->
   <div class="max-w-7xl mx-auto w-full px-4 pt-6 flex flex-wrap justify-end gap-3 no-pdf">
-    <button onclick="copyToDiscord()" 
-            class="bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition-transform transform hover:scale-105">
-      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/></svg>
+    <button onclick="copyToDiscord()" class="bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition">
       Copiar para Discord
     </button>
-    <button onclick="downloadPDF()" 
-            class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition-transform transform hover:scale-105">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+    <button onclick="downloadPDF()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition">
       Descargar PDF
     </button>
   </div>
 
-  <!-- Zona que será capturada en el PDF -->
   <div id="pdf-content" class="bg-albion-dark pb-8 mt-4">
     
-    <!-- Header: Título y Fecha -->
     <header class="border-b border-albion-border bg-albion-card/80 py-6 mb-6">
       <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
-        <input type="text" id="activityName" placeholder="Escribe el nombre de la actividad (Ej: Avaloniana T8.3)" 
+        <input type="text" id="activityName" placeholder="Nombre de la actividad (Ej: Roaming ZN)" 
                class="text-2xl md:text-3xl font-extrabold text-albion-gold tracking-wide uppercase bg-transparent text-center border-b border-dashed border-gray-600 focus:outline-none focus:border-albion-gold w-full max-w-2xl placeholder-gray-500 mb-2">
-        <p class="text-sm text-gray-400 mt-1" id="currentDate">Fecha: Automática</p>
+        <!-- Selector de Fecha Manual -->
+        <div class="flex items-center gap-2 mt-2">
+          <span class="text-sm text-gray-400">Fecha de la actividad:</span>
+          <input type="date" id="activityDate" class="bg-albion-dark border border-gray-600 rounded px-2 py-1 text-sm text-gray-300 focus:outline-none focus:border-albion-gold">
+        </div>
       </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 grid grid-cols-1 xl:grid-cols-12 gap-8">
       
-      <!-- Columna Izquierda: Configuración y Jugadores -->
       <div class="xl:col-span-8 space-y-6">
         
-        <!-- Panel de Entradas Globales -->
         <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
-          <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">💰 Economía del Reparto</h2>
+          <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">💰 Economía General</h2>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-300 mb-1">Total del Botín (Silver)</label>
@@ -82,46 +75,42 @@
           </div>
         </section>
 
-        <!-- Gestión de Jugadores -->
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
-          <div class="flex justify-between items-center mb-4">
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg overflow-x-auto">
+          <div class="flex justify-between items-center mb-4 min-w-[700px]">
             <h2 class="text-xl font-bold text-white flex items-center gap-2">🛡️ Lista de Participantes</h2>
             <button onclick="addPlayer()" class="no-pdf bg-albion-accent hover:bg-amber-600 text-white text-sm font-bold py-1.5 px-4 rounded transition">
               + Añadir Jugador
             </button>
           </div>
           
-          <!-- Encabezados de tabla para desktop -->
-          <div class="hidden sm:grid grid-cols-12 gap-2 mb-2 text-xs text-gray-400 uppercase font-bold px-2">
-            <div class="col-span-4">Nombre / Nick</div>
-            <div class="col-span-2 text-center" title="1 = Normal, 1.5 = Caller/Tanque">Rol (Mult)</div>
-            <div class="col-span-2 text-center" title="Porcentaje de tiempo participado">Asistencia %</div>
-            <div class="col-span-3 text-right" title="Valor de objetos que se quedó">Objetos (Descuento)</div>
+          <div class="hidden md:grid grid-cols-12 gap-2 mb-2 text-xs text-gray-400 uppercase font-bold px-2 min-w-[700px]">
+            <div class="col-span-3">Nombre</div>
+            <div class="col-span-1 text-center" title="Multiplicador (Ej: 1.5)">Rol</div>
+            <div class="col-span-1 text-center" title="Porcentaje de asistencia">% Asist.</div>
+            <div class="col-span-2 text-right" title="Valor que se quedó">Descuento</div>
+            <div class="col-span-2 text-right text-green-400" title="Valor a devolver por muerte">Re-equipo</div>
+            <div class="col-span-2 text-center" title="Link de Albion2D o Killboard">Link Muerte</div>
             <div class="col-span-1"></div>
           </div>
 
-          <!-- Contenedor dinámico de jugadores -->
-          <div id="playersContainer" class="space-y-3">
-            <!-- Se llena con JS -->
+          <div id="playersContainer" class="space-y-3 min-w-[700px]">
+            <!-- JS Inject -->
           </div>
         </section>
 
-        <!-- Subida de Capturas -->
         <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
           <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">🖼️ Capturas de Respaldo</h2>
           <label id="uploadBtn" class="no-pdf border-2 border-dashed border-albion-border hover:border-albion-gold rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer transition-colors bg-albion-dark/50 mb-4">
-            <span class="text-sm text-gray-300 text-center">Haz clic para añadir capturas (Cofre, Reparaciones, etc.)</span>
-            <input type="file" id="imageInput" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
+            <span class="text-sm text-gray-300 text-center">Haz clic para añadir capturas</span>
+            <input type="file" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
           </label>
           <div id="imageGallery" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
         </section>
 
       </div>
 
-      <!-- Columna Derecha: Resumen y Payout Final -->
       <div class="xl:col-span-4 space-y-6">
         
-        <!-- Tarjeta de Resultados -->
         <section class="bg-albion-card p-6 rounded-xl border border-albion-gold/40 shadow-xl relative overflow-hidden">
           <h2 class="text-xl font-bold text-white mb-6">Resumen Financiero</h2>
           <div class="space-y-3 text-sm">
@@ -138,17 +127,20 @@
               <span id="resTax" class="font-semibold text-amber-400">- 0</span>
             </div>
             <div class="flex justify-between pb-2 border-b border-albion-border">
+              <span class="text-gray-400">Total Re-equipos:</span>
+              <span id="resRegear" class="font-semibold text-green-400">- 0</span>
+            </div>
+            <div class="flex justify-between pb-2 border-b border-albion-border">
               <span class="text-gray-300 font-medium">Neto a Repartir:</span>
-              <span id="resNet" class="font-bold text-green-400 text-lg">0</span>
+              <span id="resNet" class="font-bold text-white text-lg">0</span>
             </div>
           </div>
         </section>
 
-        <!-- Lista Final de Pagos (Payouts) -->
         <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
           <h3 class="text-lg font-bold text-white mb-4 border-b border-albion-border pb-2">📋 Pagos Finales</h3>
           <div id="payoutList" class="space-y-2 text-sm max-h-none">
-            <!-- Se llena con JS -->
+            <!-- JS Inject -->
           </div>
         </section>
       </div>
@@ -156,16 +148,13 @@
   </div> 
 
   <script>
-    // Establecer fecha actual
-    const today = new Date();
-    document.getElementById('currentDate').innerText = `Fecha: ${today.toLocaleDateString('es-CL')} ${today.getHours()}:${String(today.getMinutes()).padStart(2, '0')}`;
+    // Inicializar Fecha
+    document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
 
-    // Estado inicial de los jugadores
     let players = [
-      { id: Date.now(), name: "Jugador 1", mult: 1, part: 100, buyout: 0 }
+      { id: Date.now(), name: "Jugador 1", mult: 1, part: 100, buyout: 0, regear: 0, link: "" }
     ];
 
-    // Utilidad de formato de moneda
     function formatSilver(val) {
       return new Intl.NumberFormat('es-CL').format(Math.max(0, Math.round(val)));
     }
@@ -173,34 +162,41 @@
       return new Intl.NumberFormat('es-CL').format(Math.round(val));
     }
 
-    // Renderizar los inputs de jugadores
     function renderPlayersInput() {
       const container = document.getElementById('playersContainer');
       container.innerHTML = '';
 
-      players.forEach((p, index) => {
+      players.forEach((p) => {
         const row = document.createElement('div');
-        row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-albion-dark p-3 sm:p-2 rounded border border-albion-border';
+        row.className = 'grid grid-cols-1 md:grid-cols-12 gap-2 items-center bg-albion-dark p-3 md:p-2 rounded border border-albion-border';
         
         row.innerHTML = `
-          <div class="sm:col-span-4 relative">
-            <span class="sm:hidden text-xs text-gray-500 absolute -top-2 left-2 bg-albion-dark px-1">Nombre</span>
+          <div class="md:col-span-3">
+            <span class="md:hidden text-xs text-gray-500">Nombre</span>
             <input type="text" value="${p.name}" oninput="updatePlayer(${p.id}, 'name', this.value)" placeholder="Nick" class="w-full bg-transparent text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
-          <div class="sm:col-span-2 relative">
-            <span class="sm:hidden text-xs text-gray-500 absolute -top-2 left-2 bg-albion-dark px-1">Rol (Ej: 1.5)</span>
+          <div class="md:col-span-1">
+            <span class="md:hidden text-xs text-gray-500">Rol</span>
             <input type="number" value="${p.mult}" step="0.1" min="0" oninput="updatePlayer(${p.id}, 'mult', this.value)" class="w-full bg-transparent text-center text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
-          <div class="sm:col-span-2 relative">
-            <span class="sm:hidden text-xs text-gray-500 absolute -top-2 left-2 bg-albion-dark px-1">Asistencia %</span>
+          <div class="md:col-span-1">
+            <span class="md:hidden text-xs text-gray-500">% Asistencia</span>
             <input type="number" value="${p.part}" min="0" max="100" oninput="updatePlayer(${p.id}, 'part', this.value)" class="w-full bg-transparent text-center text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
-          <div class="sm:col-span-3 relative">
-            <span class="sm:hidden text-xs text-gray-500 absolute -top-2 left-2 bg-albion-dark px-1">Descuento (Silver)</span>
+          <div class="md:col-span-2">
+            <span class="md:hidden text-xs text-gray-500">Descuento</span>
             <input type="number" value="${p.buyout || ''}" placeholder="0" oninput="updatePlayer(${p.id}, 'buyout', this.value)" class="w-full bg-transparent text-right text-red-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
-          <div class="sm:col-span-1 flex justify-end sm:justify-center">
-            <button onclick="removePlayer(${p.id})" class="no-pdf text-red-500 hover:text-red-400 text-lg font-bold w-6 h-6 flex items-center justify-center rounded hover:bg-red-900/30 transition">✕</button>
+          <div class="md:col-span-2">
+            <span class="md:hidden text-xs text-green-500">Re-equipo</span>
+            <input type="number" value="${p.regear || ''}" placeholder="0" oninput="updatePlayer(${p.id}, 'regear', this.value)" class="w-full bg-transparent text-right text-green-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
+          </div>
+          <div class="md:col-span-2">
+            <span class="md:hidden text-xs text-blue-400">Link Muerte</span>
+            <input type="url" value="${p.link || ''}" placeholder="URL Killboard" oninput="updatePlayer(${p.id}, 'link', this.value)" class="w-full bg-transparent text-xs text-blue-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
+          </div>
+          <div class="md:col-span-1 flex justify-end md:justify-center">
+            <button onclick="removePlayer(${p.id})" class="no-pdf text-red-500 hover:text-red-400 text-lg font-bold w-6 h-6 rounded hover:bg-red-900/30 transition">✕</button>
           </div>
         `;
         container.appendChild(row);
@@ -209,7 +205,7 @@
     }
 
     function addPlayer() {
-      players.push({ id: Date.now(), name: `Jugador ${players.length + 1}`, mult: 1, part: 100, buyout: 0 });
+      players.push({ id: Date.now(), name: `Jugador ${players.length + 1}`, mult: 1, part: 100, buyout: 0, regear: 0, link: "" });
       renderPlayersInput();
     }
 
@@ -217,20 +213,17 @@
       if(players.length > 1) {
         players = players.filter(p => p.id !== id);
         renderPlayersInput();
-      } else {
-        alert("Debe haber al menos un jugador en la party.");
       }
     }
 
     function updatePlayer(id, field, value) {
       const p = players.find(p => p.id === id);
       if(p) {
-        p[field] = field === 'name' ? value : (parseFloat(value) || 0);
+        p[field] = (field === 'name' || field === 'link') ? value : (parseFloat(value) || 0);
         calculateSplit();
       }
     }
 
-    // Cálculos y Payout Final
     let finalPayouts = []; 
     let globalNet = 0;
 
@@ -239,81 +232,100 @@
       const repair = parseFloat(document.getElementById('repairCost').value) || 0;
       const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
 
+      // 1. Extraer reparaciones
       const afterRepair = Math.max(0, total - repair);
+      // 2. Extraer impuesto
       const taxAmount = (afterRepair * taxPercent) / 100;
-      globalNet = Math.max(0, afterRepair - taxAmount);
+      // 3. Extraer total de re-equipos del fondo común
+      const totalRegears = players.reduce((sum, p) => sum + p.regear, 0);
+      
+      // Lo que queda para dividir en partes
+      globalNet = Math.max(0, afterRepair - taxAmount - totalRegears);
 
-      // Calcular Peso Total (Puntos de participación)
       let totalWeight = 0;
-      players.forEach(p => {
-        totalWeight += p.mult * (p.part / 100);
-      });
-
+      players.forEach(p => { totalWeight += p.mult * (p.part / 100); });
       const valuePerWeight = totalWeight > 0 ? (globalNet / totalWeight) : 0;
 
-      // Actualizar Resumen
       document.getElementById('resTotal').innerText = formatSilver(total);
       document.getElementById('resRepair').innerText = '- ' + formatSilver(repair);
       document.getElementById('resTax').innerText = '- ' + formatSilver(taxAmount);
+      document.getElementById('resRegear').innerText = '- ' + formatSilver(totalRegears);
       document.getElementById('resNet').innerText = formatSilver(globalNet);
 
-      // Calcular pago individual
       const listContainer = document.getElementById('payoutList');
       listContainer.innerHTML = '';
       finalPayouts = [];
 
       players.forEach(p => {
         const weight = p.mult * (p.part / 100);
-        const grossPayout = weight * valuePerWeight;
-        const netPayout = grossPayout - p.buyout;
+        const splitShare = weight * valuePerWeight;
+        
+        // PAGO FINAL: Su parte del loot - Lo que debe + Su compensación de muerte
+        const netPayout = splitShare - p.buyout + p.regear;
 
-        finalPayouts.push({ name: p.name, net: netPayout, buyout: p.buyout });
+        finalPayouts.push({ name: p.name, net: netPayout, buyout: p.buyout, regear: p.regear, link: p.link });
 
-        const isOwed = netPayout < 0; // Si es negativo, debe dinero
+        const isOwed = netPayout < 0; 
         const textClass = isOwed ? 'text-red-400 font-bold' : 'text-albion-gold font-bold';
         const formattedAmount = isOwed ? `DEBE ${formatExact(Math.abs(netPayout))}` : formatExact(netPayout);
 
         const row = document.createElement('div');
         row.className = 'flex justify-between items-center py-2 border-b border-albion-border/50 last:border-0';
+        
+        // Formato para mostrar detalles en la lista final
+        let detailsHtml = '';
+        if (p.buyout > 0) detailsHtml += `<span class="text-[10px] text-gray-500 block">Items: -${formatExact(p.buyout)}</span>`;
+        if (p.regear > 0) detailsHtml += `<span class="text-[10px] text-green-500 block">Re-equipo: +${formatExact(p.regear)}</span>`;
+        if (p.link) detailsHtml += `<a href="${p.link}" target="_blank" class="text-[10px] text-blue-400 underline block mt-1">Ver Muerte 🔗</a>`;
+
         row.innerHTML = `
-          <span class="text-gray-200 truncate pr-2">${p.name}</span>
-          <div class="text-right flex flex-col">
+          <div class="flex flex-col">
+            <span class="text-gray-200 truncate pr-2">${p.name}</span>
+            ${p.link ? `<a href="${p.link}" target="_blank" class="text-[10px] text-blue-400 underline truncate max-w-[150px]">Resp. Muerte</a>` : ''}
+          </div>
+          <div class="text-right flex flex-col items-end">
             <span class="${textClass}">${formattedAmount}</span>
-            ${p.buyout > 0 ? `<span class="text-[10px] text-gray-500">Items: -${formatExact(p.buyout)}</span>` : ''}
+            ${detailsHtml}
           </div>
         `;
         listContainer.appendChild(row);
       });
     }
 
-    // Exportar a Discord
     function copyToDiscord() {
       const actName = document.getElementById('activityName').value || 'Actividad sin nombre';
+      const actDate = document.getElementById('activityDate').value;
+      
       const total = parseFloat(document.getElementById('totalLoot').value) || 0;
       const repair = parseFloat(document.getElementById('repairCost').value) || 0;
       const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
+      const totalRegears = players.reduce((sum, p) => sum + p.regear, 0);
       
-      let text = `⚔️ **REPARTO DE LOOT: ${actName}** 📅 ${today.toLocaleDateString('es-CL')}\n`;
-      text += `💰 **Total:** ${formatSilver(total)} | 🛠️ **Rep:** -${formatSilver(repair)} | 👑 **Tax (${taxPercent}%):** -${formatSilver(Math.max(0, total - repair)*taxPercent/100)}\n`;
+      let text = `⚔️ **REPARTO DE LOOT: ${actName}** 📅 ${actDate}\n`;
+      text += `💰 **Total:** ${formatSilver(total)} | 🛠️ **Rep:** -${formatSilver(repair)} | 👑 **Tax:** -${formatSilver(Math.max(0, total - repair)*taxPercent/100)} | ⚰️ **Reequipos Totales:** -${formatSilver(totalRegears)}\n`;
       text += `✅ **Neto Repartido:** ${formatSilver(globalNet)}\n\n`;
       text += `**PAGOS:**\n`;
-      text += `\`\`\`\n`;
       
       finalPayouts.forEach(p => {
+        let details = [];
+        if(p.buyout > 0) details.push(`Items: -${formatExact(p.buyout)}`);
+        if(p.regear > 0) details.push(`Reequipo: +${formatExact(p.regear)}`);
+        
+        let detailString = details.length > 0 ? ` *(${details.join(', ')})*` : '';
+        let linkString = p.link ? ` - [Ver Muerte](${p.link})` : '';
+        
         if(p.net >= 0) {
-          text += `@${p.name} : ${formatExact(p.net)}\n`;
+          text += `**@${p.name}** : ${formatExact(p.net)}${detailString}${linkString}\n`;
         } else {
-          text += `@${p.name} : DEBE ${formatExact(Math.abs(p.net))}\n`;
+          text += `**@${p.name}** : DEBE ${formatExact(Math.abs(p.net))}${detailString}${linkString}\n`;
         }
       });
-      text += `\`\`\``;
 
       navigator.clipboard.writeText(text).then(() => {
         alert('¡Resumen copiado al portapapeles! Listo para pegar en Discord.');
       });
     }
 
-    // Imágenes locales
     function handleImageUpload(event) {
       const files = event.target.files;
       const gallery = document.getElementById('imageGallery');
@@ -333,11 +345,10 @@
       }
     }
 
-    // Descargar PDF
     function downloadPDF() {
       const actName = document.getElementById('activityName').value || 'Reparto';
+      const actDate = document.getElementById('activityDate').value;
       
-      // Ocultar botones e interfaces no deseadas en el PDF
       const hideElements = document.querySelectorAll('.no-pdf');
       hideElements.forEach(el => el.style.display = 'none');
       
@@ -345,19 +356,17 @@
       
       const opt = {
         margin:       [10, 10, 10, 10],
-        filename:     `Payout_${actName.replace(/\s+/g, '_')}.pdf`,
+        filename:     `Payout_${actDate}_${actName.replace(/\s+/g, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#121418' },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
       html2pdf().set(opt).from(element).save().then(() => {
-        // Restaurar elementos (si usaban flex o block, restaurar a cadena vacía hereda su css natural)
         hideElements.forEach(el => el.style.display = '');
       });
     }
 
-    // Iniciar app
     renderPlayersInput();
   </script>
 </body>
