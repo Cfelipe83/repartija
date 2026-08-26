@@ -8,17 +8,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
-      --bg-dark: #121417;
-      --card-bg: #1c1f24;
-      --card-border: #2e3440;
+      --bg-dark: #0f1115;
+      --card-bg: #181b20;
+      --card-border: #262c36;
       --text-main: #eceff4;
-      --text-muted: #d8dee9;
+      --text-muted: #9aa5b5;
       --primary: #5e81ac;
       --primary-hover: #81a1c1;
+      --gold: #d4af37;
+      --gold-dark: #997d1e;
       --success: #a3be8c;
       --danger: #bf616a;
       --warning: #ebcb8b;
-      --input-bg: #242933;
+      --input-bg: #1f232b;
     }
 
     * {
@@ -31,7 +33,7 @@
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
-      padding: 24px;
+      padding: 20px;
       display: flex;
       justify-content: center;
     }
@@ -41,8 +43,38 @@
       max-width: 1100px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
     }
+
+    /* Tabs */
+    .tabs-nav {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid var(--card-border);
+      padding-bottom: 4px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 6px 6px 0 0;
+      transition: 0.2s;
+    }
+
+    .tab-btn.active {
+      color: var(--gold);
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-bottom: 2px solid var(--gold);
+    }
+
+    .tab-pane { display: none; flex-direction: column; gap: 16px; }
+    .tab-pane.active { display: flex; }
 
     .card {
       background-color: var(--card-bg);
@@ -52,18 +84,14 @@
       page-break-inside: avoid;
     }
 
-    h1, h2, h3 {
-      margin-bottom: 16px;
-      color: #fff;
-    }
-
-    h1 { font-size: 1.5rem; text-align: center; }
-    h2 { font-size: 1.2rem; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; }
+    h1, h2, h3 { margin-bottom: 12px; color: #fff; }
+    h1 { font-size: 1.4rem; text-align: center; }
+    h2 { font-size: 1.15rem; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; color: var(--gold); }
 
     .grid-form {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
+      gap: 14px;
     }
 
     .form-group {
@@ -72,11 +100,7 @@
       gap: 6px;
     }
 
-    label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
+    label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
 
     input, select, textarea {
       background-color: var(--input-bg);
@@ -87,10 +111,7 @@
       font-size: 0.9rem;
     }
 
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
+    input:focus, textarea:focus { outline: none; border-color: var(--gold); }
 
     .btn {
       cursor: pointer;
@@ -98,27 +119,27 @@
       border-radius: 4px;
       border: none;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       transition: background 0.2s, opacity 0.2s;
     }
 
     .btn:hover { opacity: 0.9; }
+    .btn-gold { background: linear-gradient(135deg, #d4af37, #aa820a); color: #121417; }
     .btn-primary { background-color: var(--primary); color: #fff; }
     .btn-danger { background-color: var(--danger); color: #fff; }
-    .btn-success { background-color: var(--success); color: #1e1e1e; }
-    .btn-warning { background-color: var(--warning); color: #1e1e1e; }
+    .btn-success { background-color: var(--success); color: #121417; }
     .btn-secondary { background-color: var(--card-border); color: #fff; }
 
     .actions-bar {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 12px;
+      margin-top: 10px;
     }
 
     th, td {
@@ -128,15 +149,9 @@
       font-size: 0.85rem;
     }
 
-    th {
-      background-color: var(--input-bg);
-      color: var(--text-muted);
-    }
+    th { background-color: var(--input-bg); color: var(--text-muted); }
 
-    .table-input {
-      width: 100%;
-      padding: 6px 8px;
-    }
+    .table-input { width: 100%; padding: 6px 8px; }
 
     .kb-link {
       display: inline-flex;
@@ -147,10 +162,6 @@
       font-size: 0.8rem;
       font-weight: 600;
       margin-top: 4px;
-    }
-
-    .kb-link:hover {
-      text-decoration: underline;
     }
 
     .status-badge {
@@ -177,10 +188,11 @@
       padding: 12px;
       border-radius: 6px;
       border: 1px solid var(--card-border);
+      border-left: 4px solid var(--gold);
     }
 
     .metric-title { font-size: 0.75rem; color: var(--text-muted); }
-    .metric-value { font-size: 1.1rem; font-weight: bold; margin-top: 4px; }
+    .metric-value { font-size: 1.1rem; font-weight: bold; margin-top: 4px; color: #fff; }
 
     .alert-box {
       background-color: rgba(191, 97, 106, 0.15);
@@ -216,9 +228,7 @@
       transition: transform 0.2s;
     }
 
-    .evidence-card:hover .evidence-thumb {
-      transform: scale(1.03);
-    }
+    .evidence-card:hover .evidence-thumb { transform: scale(1.03); }
 
     .btn-delete-img {
       position: absolute;
@@ -231,7 +241,6 @@
       border-radius: 3px;
       cursor: pointer;
       font-size: 0.7rem;
-      z-index: 2;
     }
 
     /* Modales */
@@ -261,245 +270,296 @@
       max-width: 90vw;
       max-height: 85vh;
       border-radius: 6px;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      border: 1px solid var(--gold);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.8);
     }
 
-    /* Print / PDF Document Layout */
+    /* PDF Estilizado y Colorido (Impresión) */
     #pdf-printable-doc {
       display: none;
-      background-color: #ffffff;
-      color: #1a1a1a;
-      padding: 24px;
-      font-size: 11pt;
+      background: #11141a;
+      color: #e5e9f0;
+      padding: 28px;
+      font-size: 10pt;
     }
 
-    .pdf-mode #report-content { display: none !important; }
+    .pdf-mode #report-content, .pdf-mode .tabs-nav { display: none !important; }
     .pdf-mode #pdf-printable-doc { display: block !important; }
 
     .pdf-header {
-      border-bottom: 2px solid #5e81ac;
+      border-bottom: 2px solid var(--gold);
       padding-bottom: 12px;
       margin-bottom: 16px;
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: center;
     }
 
-    .pdf-header h1 {
-      color: #2e3440;
+    .pdf-title-gold {
+      color: var(--gold);
       font-size: 18pt;
-      margin: 0;
-      text-align: left;
-    }
-
-    .pdf-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 12px 0 20px 0;
-    }
-
-    .pdf-table th, .pdf-table td {
-      border: 1px solid #d8dee9;
-      padding: 8px;
-      text-align: left;
-      font-size: 9.5pt;
-      color: #2e3440;
-    }
-
-    .pdf-table th {
-      background-color: #f4f6f9;
-      font-weight: bold;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
     .pdf-summary-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      margin: 12px 0 20px 0;
+      margin: 12px 0 18px 0;
     }
 
     .pdf-metric-card {
-      background: #f8fafc;
-      border: 1px solid #d8dee9;
-      padding: 8px;
+      background: #1a1e26;
+      border: 1px solid #2e3542;
+      border-top: 3px solid var(--gold);
+      padding: 10px;
       border-radius: 4px;
     }
 
-    .pdf-metric-card .title { font-size: 8pt; color: #4c566a; }
-    .pdf-metric-card .val { font-size: 11pt; font-weight: bold; color: #2e3440; margin-top: 2px; }
-
-    .pdf-gallery {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin-top: 16px;
+    .pdf-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 20px 0;
     }
+
+    .pdf-table th {
+      background-color: #1f242e;
+      color: var(--gold);
+      border: 1px solid #2e3542;
+      padding: 8px;
+      font-size: 8.5pt;
+      text-transform: uppercase;
+    }
+
+    .pdf-table td {
+      border: 1px solid #262c38;
+      padding: 8px;
+      font-size: 9pt;
+      background-color: #161920;
+    }
+
+    .pdf-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: bold;
+      font-size: 8pt;
+    }
+
+    .pdf-badge-green { background: #233b2b; color: #85e89d; border: 1px solid #2e5e3b; }
+    .pdf-badge-red { background: #3d1d24; color: #f97583; border: 1px solid #67222c; }
 
     .pdf-full-img {
       width: 100%;
-      max-height: 800px;
+      max-height: 750px;
       object-fit: contain;
-      border: 1px solid #d8dee9;
+      border: 1px solid #2e3542;
+      border-radius: 4px;
+      margin-bottom: 12px;
       page-break-inside: avoid;
     }
   </style>
 </head>
 <body>
 
-<!-- VISTA INTERACTIVA WEB -->
-<div class="container" id="report-content">
+<div class="container">
 
-  <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-      <h1>⚔️ Albion Online - Payouts Pro</h1>
-      <button class="btn btn-secondary" style="font-size: 0.75rem;" onclick="resetSession()">🔄 Reiniciar Todo</button>
-    </div>
-    <div class="grid-form" style="margin-top: 12px;">
-      <div class="form-group">
-        <label for="party-name">Actividad / Nombre de Party</label>
-        <input type="text" id="party-name" value="Gank / Roaming Session" oninput="saveState()">
+  <!-- Navegación de Pestañas -->
+  <div class="tabs-nav no-export">
+    <button class="tab-btn active" onclick="switchTab('tab-calc')">⚔️ Calculadora de Reparto</button>
+    <button class="tab-btn" onclick="switchTab('tab-ledger')">📜 Libro Contable (Deudas & Pagos)</button>
+  </div>
+
+  <!-- PESTAÑA 1: CALCULADORA -->
+  <div class="tab-pane active" id="tab-calc">
+    <div id="report-content" style="display: flex; flex-direction: column; gap: 16px;">
+      
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <h1>Albion Online - Payouts Pro</h1>
+          <button class="btn btn-secondary" style="font-size: 0.75rem;" onclick="resetCurrentSession()">🔄 Limpiar Formulario</button>
+        </div>
+        <div class="grid-form" style="margin-top: 12px;">
+          <div class="form-group">
+            <label for="party-name">Actividad / Nombre de Party</label>
+            <input type="text" id="party-name" value="Gank / Roaming Session" oninput="saveCurrentState()">
+          </div>
+          <div class="form-group">
+            <label for="party-date">Fecha</label>
+            <input type="date" id="party-date" onchange="saveCurrentState()">
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="party-date">Fecha</label>
-        <input type="date" id="party-date" onchange="saveState()">
+
+      <div class="card">
+        <h2>1. Economía General</h2>
+        <div class="grid-form">
+          <div class="form-group">
+            <label for="total-loot">Botín Total Estimado (Silver)</label>
+            <input type="number" id="total-loot" min="0" value="0" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label for="repairs">Costo Reparaciones (Silver)</label>
+            <input type="number" id="repairs" min="0" value="0" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label for="guild-tax">Impuesto de Gremio (%)</label>
+            <input type="number" id="guild-tax" min="0" max="100" value="0" placeholder="0">
+          </div>
+        </div>
       </div>
+
+      <div class="card">
+        <h2>2. Participantes</h2>
+        <div class="actions-bar" style="margin-bottom: 12px;">
+          <button class="btn btn-gold" onclick="addPlayer()">+ Añadir Jugador</button>
+          <button class="btn btn-secondary" onclick="openBulkModal()">📥 Importar Lista (Paste)</button>
+        </div>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Nick</th>
+                <th>Descuento / Buyout (Silver)</th>
+                <th>Re-equipo Solicitado (Silver)</th>
+                <th>Killboard URL</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="player-rows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>3. Resumen Financiero</h2>
+        <div class="summary-metrics">
+          <div class="metric-box">
+            <div class="metric-title">Impuesto Gremio Cobrado</div>
+            <div class="metric-value" id="disp-tax">0</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-title">Fondo Total Re-equipos</div>
+            <div class="metric-value" id="disp-regear-pool">0</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-title">Total Neto a Repartir</div>
+            <div class="metric-value" id="disp-distributable">0</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-title">Corte Base por Jugador</div>
+            <div class="metric-value" id="disp-base-split">0</div>
+          </div>
+        </div>
+        <div class="alert-box" id="deficit-alert">
+          ⚠️ <strong>Atención:</strong> Las deducciones superan el total de botín por <span id="deficit-amount">0</span> Silver.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>4. Pagos Finales Calculados</h2>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Jugador</th>
+                <th>Corte Base</th>
+                <th>Re-equipo (+)</th>
+                <th>Descuento (-)</th>
+                <th>Balance Final</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="payout-rows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>5. Respaldo Visual (Capturas de Pantalla)</h2>
+        <div style="margin-bottom: 12px;">
+          <input type="file" id="evidence-input" accept="image/*" multiple onchange="handleImageUpload(event)">
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 8px;">(Haz clic en una imagen para agrandarla)</span>
+        </div>
+        <div class="evidence-grid" id="evidence-gallery"></div>
+      </div>
+
+      <div class="actions-bar">
+        <button class="btn btn-gold" onclick="commitSessionToLedger()">💾 Guardar en Historial</button>
+        <button class="btn btn-primary" onclick="copyDiscordMarkdown()">📋 Copiar para Discord</button>
+        <button class="btn btn-success" onclick="exportPDF()">📄 Descargar Reporte PDF</button>
+      </div>
+
     </div>
   </div>
 
-  <div class="card">
-    <h2>1. Economía General</h2>
-    <div class="grid-form">
-      <div class="form-group">
-        <label for="total-loot">Botín Total Estimado (Silver)</label>
-        <input type="number" id="total-loot" min="0" value="0" placeholder="0">
+  <!-- PESTAÑA 2: LIBRO CONTABLE (HISTORIAL & DEUDAS) -->
+  <div class="tab-pane" id="tab-ledger">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <h2>📊 Balance Consolidado por Jugador</h2>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Suma acumulada de todas las partys pendientes</span>
       </div>
-      <div class="form-group">
-        <label for="repairs">Costo Reparaciones (Silver)</label>
-        <input type="number" id="repairs" min="0" value="0" placeholder="0">
-      </div>
-      <div class="form-group">
-        <label for="guild-tax">Impuesto de Gremio (%)</label>
-        <input type="number" id="guild-tax" min="0" max="100" value="0" placeholder="0">
+      <div style="overflow-x: auto; margin-top: 10px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>Total Pendiente a Cobrar/Pagar</th>
+              <th>Partys Involucradas</th>
+              <th>Estado Global</th>
+            </tr>
+          </thead>
+          <tbody id="ledger-consolidated-rows"></tbody>
+        </table>
       </div>
     </div>
-  </div>
 
-  <div class="card">
-    <h2>2. Participantes</h2>
-    <div class="actions-bar" style="margin-bottom: 12px;">
-      <button class="btn btn-primary" onclick="addPlayer()">+ Añadir Jugador</button>
-      <button class="btn btn-secondary" onclick="openBulkModal()">📥 Importar Lista (Paste)</button>
-    </div>
-    <div style="overflow-x: auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>Nick</th>
-            <th>Descuento / Buyout (Silver)</th>
-            <th>Re-equipo Solicitado (Silver)</th>
-            <th>Killboard URL</th>
-            <th>Acción</th>
-          </tr>
-        </thead>
-        <tbody id="player-rows"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>3. Resumen Financiero</h2>
-    <div class="summary-metrics">
-      <div class="metric-box">
-        <div class="metric-title">Impuesto Gremio Cobrado</div>
-        <div class="metric-value" id="disp-tax">0</div>
-      </div>
-      <div class="metric-box">
-        <div class="metric-title">Fondo Total Re-equipos</div>
-        <div class="metric-value" id="disp-regear-pool">0</div>
-      </div>
-      <div class="metric-box">
-        <div class="metric-title">Total Neto a Repartir</div>
-        <div class="metric-value" id="disp-distributable">0</div>
-      </div>
-      <div class="metric-box">
-        <div class="metric-title">Corte Base por Jugador</div>
-        <div class="metric-value" id="disp-base-split">0</div>
+    <div class="card">
+      <h2>📁 Historial de Partys Guardadas</h2>
+      <div id="ledger-sessions-container" style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+        <!-- Inyección dinámica de sesiones -->
       </div>
     </div>
-    <div class="alert-box" id="deficit-alert">
-      ⚠️ <strong>Atención:</strong> Las deducciones (Reparaciones + Tax + Re-equipos) superan el valor del Botín Total por <span id="deficit-amount">0</span> Silver. No hay saldo positivo para repartir base.
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>4. Pagos Finales</h2>
-    <div style="overflow-x: auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>Jugador</th>
-            <th>Corte Base</th>
-            <th>Re-equipo (+)</th>
-            <th>Descuento (-)</th>
-            <th>Balance Final</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody id="payout-rows"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>5. Respaldo Visual (Capturas de Pantalla)</h2>
-    <div style="margin-bottom: 12px;">
-      <input type="file" id="evidence-input" accept="image/*" multiple onchange="handleImageUpload(event)">
-      <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 8px;">(Haz clic en una miniatura para verla en grande)</span>
-    </div>
-    <div class="evidence-grid" id="evidence-gallery"></div>
-  </div>
-
-  <div class="actions-bar">
-    <button class="btn btn-warning" onclick="copyDiscordMarkdown()">📋 Copiar para Discord</button>
-    <button class="btn btn-success" onclick="exportPDF()">📄 Descargar Reporte PDF</button>
   </div>
 
 </div>
 
-<!-- PLANTILLA FORMAL PARA PDF (OCULTA EN WEB, ACTIVA EN EXPORT) -->
+<!-- PLANTILLA ESTILIZADA PARA EXPORTACIÓN PDF -->
 <div id="pdf-printable-doc">
   <div class="pdf-header">
     <div>
-      <h1 id="pdf-title">REPORTE FINANCIERO DE BOTÍN</h1>
-      <div style="font-size: 9pt; color: #4c566a; margin-top: 4px;" id="pdf-subtitle">Albion Online - Payouts Pro</div>
+      <div class="pdf-title-gold" id="pdf-title">LIQUIDACIÓN DE BOTÍN</div>
+      <div style="font-size: 8.5pt; color: var(--text-muted); margin-top: 4px;" id="pdf-subtitle">Albion Online - Payouts Pro Report</div>
     </div>
-    <div style="text-align: right; font-size: 9pt; color: #4c566a;">
-      <div><strong>Fecha:</strong> <span id="pdf-date-val"></span></div>
+    <div style="text-align: right; font-size: 9pt; color: var(--text-muted);">
+      <div>Fecha: <strong style="color: #fff;" id="pdf-date-val"></strong></div>
     </div>
   </div>
 
-  <h3 style="font-size: 11pt; margin-bottom: 6px; color: #2e3440;">Resumen General</h3>
+  <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;">Resumen Económico</div>
   <div class="pdf-summary-grid">
     <div class="pdf-metric-card">
-      <div class="title">Botín Bruto</div>
-      <div class="val" id="pdf-gross-loot">0</div>
+      <div style="font-size: 7.5pt; color: var(--text-muted);">BOTÍN BRUTO</div>
+      <div style="font-size: 11pt; font-weight: bold; color: #fff; margin-top: 2px;" id="pdf-gross-loot">0</div>
     </div>
     <div class="pdf-metric-card">
-      <div class="title">Reparaciones / Tax</div>
-      <div class="val" id="pdf-deductions">0</div>
+      <div style="font-size: 7.5pt; color: var(--text-muted);">REPARACIONES / TAX</div>
+      <div style="font-size: 11pt; font-weight: bold; color: var(--warning); margin-top: 2px;" id="pdf-deductions">0</div>
     </div>
     <div class="pdf-metric-card">
-      <div class="title">Fondo Re-equipos</div>
-      <div class="val" id="pdf-regear-total">0</div>
+      <div style="font-size: 7.5pt; color: var(--text-muted);">FONDO RE-EQUIPOS</div>
+      <div style="font-size: 11pt; font-weight: bold; color: var(--primary-hover); margin-top: 2px;" id="pdf-regear-total">0</div>
     </div>
     <div class="pdf-metric-card">
-      <div class="title">Corte por Jugador</div>
-      <div class="val" id="pdf-base-cut">0</div>
+      <div style="font-size: 7.5pt; color: var(--text-muted);">CORTE INDIVIDUAL</div>
+      <div style="font-size: 11pt; font-weight: bold; color: var(--gold); margin-top: 2px;" id="pdf-base-cut">0</div>
     </div>
   </div>
 
-  <h3 style="font-size: 11pt; margin-bottom: 6px; color: #2e3440;">Liquidación de Pagos</h3>
+  <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 4px; text-transform: uppercase;">Desglose de Liquidación</div>
   <table class="pdf-table">
     <thead>
       <tr>
@@ -515,8 +575,8 @@
   </table>
 
   <div id="pdf-images-section" style="page-break-before: always; display: none;">
-    <h3 style="font-size: 11pt; margin-bottom: 12px; color: #2e3440; border-bottom: 1px solid #d8dee9; padding-bottom: 4px;">Anexo: Respaldos Visuales</h3>
-    <div class="pdf-gallery" id="pdf-gallery-container"></div>
+    <div style="font-size: 9pt; font-weight: bold; color: var(--gold); margin-bottom: 10px; text-transform: uppercase; border-bottom: 1px solid var(--card-border); padding-bottom: 4px;">Anexo: Respaldos de Cofre / Inventario</div>
+    <div id="pdf-gallery-container"></div>
   </div>
 </div>
 
@@ -524,16 +584,16 @@
 <div class="modal-overlay" id="bulk-modal">
   <div class="modal-box">
     <h3>Importar Participantes</h3>
-    <p style="font-size: 0.8rem; color: var(--text-muted);">Pega la lista de nicks de Discord o el juego (uno por línea):</p>
+    <p style="font-size: 0.8rem; color: var(--text-muted);">Pega la lista de nicks (uno por línea):</p>
     <textarea id="bulk-nicks" rows="8" placeholder="Nick1&#10;Nick2&#10;Nick3"></textarea>
     <div class="actions-bar" style="justify-content: flex-end;">
       <button class="btn btn-secondary" onclick="closeBulkModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="processBulkNicks()">Agregar Nicks</button>
+      <button class="btn btn-gold" onclick="processBulkNicks()">Agregar Nicks</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL LIGHTBOX / PANTALLA COMPLETA -->
+<!-- MODAL LIGHTBOX -->
 <div class="modal-overlay" id="lightbox-modal" onclick="closeLightbox()">
   <img id="lightbox-img" class="lightbox-img" src="" alt="Vista Previa">
 </div>
@@ -541,8 +601,10 @@
 <script>
   let players = [];
   let evidenceImages = [];
+  let ledgerSessions = []; // Historial de partidas guardadas
 
-  const STORAGE_KEY = "albion_payouts_pro_state";
+  const CURRENT_STATE_KEY = "albion_payouts_pro_state";
+  const LEDGER_KEY = "albion_payouts_pro_ledger";
 
   function sanitize(num) {
     const val = Number(num);
@@ -553,7 +615,23 @@
     return Math.round(val).toLocaleString('es-CL');
   }
 
-  function saveState() {
+  // Pestañas
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+    
+    if (tabId === 'tab-calc') {
+      document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      document.getElementById('tab-calc').classList.add('active');
+    } else {
+      document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      document.getElementById('tab-ledger').classList.add('active');
+      renderLedger();
+    }
+  }
+
+  // Persistencia
+  function saveCurrentState() {
     const state = {
       partyName: document.getElementById('party-name').value,
       partyDate: document.getElementById('party-date').value,
@@ -563,15 +641,20 @@
       players: players,
       evidenceImages: evidenceImages
     };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
-      console.warn("Storage quota exceeded", e);
-    }
+    try { localStorage.setItem(CURRENT_STATE_KEY, JSON.stringify(state)); } catch (e) {}
   }
 
-  function loadState() {
-    const raw = localStorage.getItem(STORAGE_KEY);
+  function saveLedger() {
+    try { localStorage.setItem(LEDGER_KEY, JSON.stringify(ledgerSessions)); } catch (e) {}
+  }
+
+  function loadInitialData() {
+    const rawLedger = localStorage.getItem(LEDGER_KEY);
+    if (rawLedger) {
+      try { ledgerSessions = JSON.parse(rawLedger); } catch (e) { ledgerSessions = []; }
+    }
+
+    const raw = localStorage.getItem(CURRENT_STATE_KEY);
     if (!raw) {
       document.getElementById('party-date').valueAsDate = new Date();
       addPlayer("Jugador 1");
@@ -593,14 +676,12 @@
       renderGallery();
       calculateAll();
     } catch (e) {
-      console.error("Error al cargar estado", e);
       addPlayer("Jugador 1");
     }
   }
 
-  function resetSession() {
-    if (!confirm("¿Deseas reiniciar y vaciar todos los campos del reparto actual?")) return;
-    localStorage.removeItem(STORAGE_KEY);
+  function resetCurrentSession() {
+    if (!confirm("¿Deseas vaciar los campos del formulario actual? (No borrará el historial guardado)")) return;
     players = [];
     evidenceImages = [];
     document.getElementById('total-loot').value = 0;
@@ -609,8 +690,10 @@
     document.getElementById('party-name').value = "Gank / Roaming Session";
     document.getElementById('party-date').valueAsDate = new Date();
     addPlayer("Jugador 1");
+    saveCurrentState();
   }
 
+  // Jugadores Form
   function addPlayer(defaultName = "") {
     const id = Date.now() + Math.random().toString(36).substr(2, 4);
     players.push({
@@ -622,14 +705,14 @@
     });
     renderPlayersTable();
     calculateAll();
-    saveState();
+    saveCurrentState();
   }
 
   function removePlayer(id) {
     players = players.filter(p => p.id !== id);
     renderPlayersTable();
     calculateAll();
-    saveState();
+    saveCurrentState();
   }
 
   function updatePlayerField(id, field, value) {
@@ -642,7 +725,6 @@
       player[field] = value;
     }
     
-    // Si cambia el link, actualizar el botón directo
     if (field === 'killboard') {
       const linkEl = document.getElementById(`kb-link-${id}`);
       if (linkEl) {
@@ -656,7 +738,7 @@
     }
 
     calculateAll();
-    saveState();
+    saveCurrentState();
   }
 
   function renderPlayersTable() {
@@ -683,7 +765,7 @@
   ['total-loot', 'repairs', 'guild-tax'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => {
       calculateAll();
-      saveState();
+      saveCurrentState();
     });
   });
 
@@ -741,10 +823,146 @@
     });
   }
 
-  function openBulkModal() {
-    document.getElementById('bulk-modal').style.display = "flex";
+  // Guardar Sesión en Historial / Libro Contable
+  function commitSessionToLedger() {
+    const activity = document.getElementById('party-name').value || 'Reparto';
+    const date = document.getElementById('party-date').value;
+    const totalLoot = sanitize(document.getElementById('total-loot').value);
+    const repairs = sanitize(document.getElementById('repairs').value);
+    const taxPercent = Math.min(100, sanitize(document.getElementById('guild-tax').value));
+    const taxAmount = (totalLoot * taxPercent) / 100;
+    const totalRegear = players.reduce((sum, p) => sum + p.regear, 0);
+    const distributableNet = Math.max(0, totalLoot - repairs - taxAmount - totalRegear);
+    const baseSplit = players.length > 0 ? distributableNet / players.length : 0;
+
+    const sessionData = {
+      id: "session_" + Date.now(),
+      name: activity,
+      date: date,
+      baseSplit: baseSplit,
+      players: players.map(p => ({
+        name: (p.name || "Sin nombre").trim(),
+        balance: baseSplit + p.regear - p.buyout,
+        paid: false // Estado de liquidación
+      }))
+    };
+
+    ledgerSessions.unshift(sessionData);
+    saveLedger();
+    alert(`¡Sesión "${activity}" guardada en el Libro Contable!`);
   }
 
+  // Render Pestaña 2: Ledger
+  function renderLedger() {
+    // 1. Resumen consolidado acumulado
+    const consolidated = {};
+
+    ledgerSessions.forEach(session => {
+      session.players.forEach(p => {
+        if (!p.paid) { // Solo consideramos los no saldados
+          const key = p.name.toLowerCase();
+          if (!consolidated[key]) {
+            consolidated[key] = { displayName: p.name, netBalance: 0, pendingParties: 0 };
+          }
+          consolidated[key].netBalance += p.balance;
+          consolidated[key].pendingParties += 1;
+        }
+      });
+    });
+
+    const consTbody = document.getElementById('ledger-consolidated-rows');
+    consTbody.innerHTML = "";
+
+    const consKeys = Object.keys(consolidated);
+    if (consKeys.length === 0) {
+      consTbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No hay deudas ni pagos pendientes acumulados.</td></tr>`;
+    } else {
+      consKeys.forEach(k => {
+        const item = consolidated[k];
+        const tr = document.createElement('tr');
+        let statusBadge = item.netBalance > 0 
+          ? `<span class="status-badge status-receive">SE LE DEBE: ${formatSilver(item.netBalance)}</span>`
+          : (item.netBalance < 0 ? `<span class="status-badge status-pay">DEBE: ${formatSilver(Math.abs(item.netBalance))}</span>` : `<span class="status-badge status-zero">SALDADO (0)</span>`);
+
+        tr.innerHTML = `
+          <td><strong>${item.displayName}</strong></td>
+          <td style="font-size: 1rem; font-weight: bold;">${formatSilver(item.netBalance)} Silver</td>
+          <td>${item.pendingParties} partida(s) pendiente(s)</td>
+          <td>${statusBadge}</td>
+        `;
+        consTbody.appendChild(tr);
+      });
+    }
+
+    // 2. Desglose por Partys Guardadas
+    const sessContainer = document.getElementById('ledger-sessions-container');
+    sessContainer.innerHTML = "";
+
+    if (ledgerSessions.length === 0) {
+      sessContainer.innerHTML = `<div style="text-align:center; color: var(--text-muted); padding: 20px;">No has guardado ninguna party todavía.</div>`;
+      return;
+    }
+
+    ledgerSessions.forEach((sess, sIdx) => {
+      const sessCard = document.createElement('div');
+      sessCard.style.cssText = "background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 6px; padding: 14px;";
+
+      let playersRows = "";
+      sess.players.forEach((p, pIdx) => {
+        playersRows += `
+          <tr>
+            <td><strong>${p.name}</strong></td>
+            <td>${formatSilver(p.balance)} Silver</td>
+            <td>
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" ${p.paid ? 'checked' : ''} onchange="togglePlayerPayment(${sIdx}, ${pIdx})">
+                <span style="font-size: 0.8rem; color: ${p.paid ? 'var(--success)' : 'var(--warning)'}; font-weight: bold;">
+                  ${p.paid ? '✓ Pagado / Saldado' : '⏳ Pendiente'}
+                </span>
+              </label>
+            </td>
+          </tr>
+        `;
+      });
+
+      sessCard.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; margin-bottom: 8px;">
+          <div>
+            <span style="font-size: 1rem; font-weight: bold; color: var(--gold);">${sess.name}</span>
+            <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 10px;">📅 ${sess.date}</span>
+          </div>
+          <button class="btn btn-danger" style="padding: 2px 8px; font-size: 0.75rem;" onclick="deleteLedgerSession(${sIdx})">Eliminar Party</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Jugador</th>
+              <th>Monto</th>
+              <th>Acción / Estado</th>
+            </tr>
+          </thead>
+          <tbody>${playersRows}</tbody>
+        </table>
+      `;
+      sessContainer.appendChild(sessCard);
+    });
+  }
+
+  function togglePlayerPayment(sessionIdx, playerIdx) {
+    ledgerSessions[sessionIdx].players[playerIdx].paid = !ledgerSessions[sessionIdx].players[playerIdx].paid;
+    saveLedger();
+    renderLedger();
+  }
+
+  function deleteLedgerSession(idx) {
+    if (!confirm("¿Eliminar esta party del historial?")) return;
+    ledgerSessions.splice(idx, 1);
+    saveLedger();
+    renderLedger();
+  }
+
+  // Modales Fast Paste
+  function openBulkModal() { document.getElementById('bulk-modal').style.display = "flex"; }
   function closeBulkModal() {
     document.getElementById('bulk-modal').style.display = "none";
     document.getElementById('bulk-nicks').value = "";
@@ -770,10 +988,11 @@
 
     renderPlayersTable();
     calculateAll();
-    saveState();
+    saveCurrentState();
     closeBulkModal();
   }
 
+  // Manejo de Imágenes
   function handleImageUpload(e) {
     const files = Array.from(e.target.files);
     if (!files.length) return;
@@ -806,13 +1025,12 @@
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
           evidenceImages.push(compressedBase64);
           renderGallery();
-          saveState();
+          saveCurrentState();
         };
         img.src = event.target.result;
       };
       reader.readAsDataURL(file);
     });
-
     e.target.value = "";
   }
 
@@ -820,7 +1038,7 @@
     e.stopPropagation();
     evidenceImages.splice(index, 1);
     renderGallery();
-    saveState();
+    saveCurrentState();
   }
 
   function renderGallery() {
@@ -839,11 +1057,9 @@
     });
   }
 
-  // Lightbox
   function openLightbox(src) {
-    const modal = document.getElementById('lightbox-modal');
     document.getElementById('lightbox-img').src = src;
-    modal.style.display = "flex";
+    document.getElementById('lightbox-modal').style.display = "flex";
   }
 
   function closeLightbox() {
@@ -886,7 +1102,7 @@
     });
   }
 
-  // Generador de reporte limpio para PDF
+  // Exportar PDF Estilizado
   function exportPDF() {
     const partyName = document.getElementById('party-name').value || 'Reparto';
     const partyDate = document.getElementById('party-date').value;
@@ -898,7 +1114,6 @@
     const distributableNet = Math.max(0, totalLoot - repairs - taxAmount - totalRegear);
     const baseSplit = players.length > 0 ? distributableNet / players.length : 0;
 
-    // Llenar vista documental
     document.getElementById('pdf-title').innerText = `LIQUIDACIÓN: ${partyName.toUpperCase()}`;
     document.getElementById('pdf-date-val').innerText = partyDate;
     document.getElementById('pdf-gross-loot').innerText = formatSilver(totalLoot);
@@ -911,13 +1126,17 @@
     players.forEach(p => {
       const balance = baseSplit + p.regear - p.buyout;
       const tr = document.createElement('tr');
+      const badgeHtml = balance > 0 
+        ? `<span class="pdf-badge pdf-badge-green">RECIBE ${formatSilver(balance)}</span>`
+        : (balance < 0 ? `<span class="pdf-badge pdf-badge-red">DEBE ${formatSilver(Math.abs(balance))}</span>` : `<span class="pdf-badge" style="background:#333;color:#aaa;">0</span>`);
+
       tr.innerHTML = `
-        <td><strong>${p.name || 'Sin nombre'}</strong></td>
+        <td style="color:#fff;"><strong>${p.name || 'Sin nombre'}</strong></td>
         <td>${formatSilver(baseSplit)}</td>
-        <td style="color: #2e7d32;">${p.regear > 0 ? '+' + formatSilver(p.regear) : '-'}</td>
-        <td style="color: #c62828;">${p.buyout > 0 ? '-' + formatSilver(p.buyout) : '-'}</td>
-        <td><strong>${formatSilver(balance)}</strong> (${balance >= 0 ? 'RECIBE' : 'DEBE'})</td>
-        <td style="font-size: 8pt; word-break: break-all;">${p.killboard || '-'}</td>
+        <td style="color: #85e89d;">${p.regear > 0 ? '+' + formatSilver(p.regear) : '-'}</td>
+        <td style="color: #f97583;">${p.buyout > 0 ? '-' + formatSilver(p.buyout) : '-'}</td>
+        <td><strong>${formatSilver(balance)}</strong> ${badgeHtml}</td>
+        <td style="font-size: 7.5pt; word-break: break-all; color: var(--primary-hover);">${p.killboard || '-'}</td>
       `;
       pdfTbody.appendChild(tr);
     });
@@ -938,15 +1157,14 @@
       pdfImagesSection.style.display = "none";
     }
 
-    // Activar modo PDF
     document.body.classList.add('pdf-mode');
     const element = document.getElementById('pdf-printable-doc');
 
     const opt = {
-      margin: [10, 10, 10, 10],
+      margin: [8, 8, 8, 8],
       filename: `Payout_${partyName.replace(/\s+/g, '_')}_${partyDate}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0, scrollX: 0, backgroundColor: '#11141a' },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
@@ -959,7 +1177,7 @@
     });
   }
 
-  loadState();
+  loadInitialData();
 </script>
 
 </body>
