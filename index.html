@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Albion Online - Loot Split Calculator</title>
+  <title>Albion Online - Payouts Pro</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- html2pdf.js para generar el PDF -->
+  <!-- html2pdf.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     tailwind.config = {
@@ -29,188 +29,303 @@
 </head>
 <body class="bg-albion-dark text-gray-200 min-h-screen font-sans flex flex-col">
 
-  <!-- Botón de Descarga PDF (No se verá en el PDF) -->
-  <div class="max-w-5xl mx-auto w-full px-4 pt-4 flex justify-end">
+  <!-- Botones de Acción Superiores (No salen en PDF) -->
+  <div class="max-w-7xl mx-auto w-full px-4 pt-6 flex flex-wrap justify-end gap-3 no-pdf">
+    <button onclick="copyToDiscord()" 
+            class="bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition-transform transform hover:scale-105">
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/></svg>
+      Copiar para Discord
+    </button>
     <button onclick="downloadPDF()" 
             class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg shadow-lg flex items-center gap-2 transition-transform transform hover:scale-105">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-      Descargar PDF para enviar
+      Descargar PDF
     </button>
   </div>
 
   <!-- Zona que será capturada en el PDF -->
-  <div id="pdf-content" class="bg-albion-dark pb-8">
+  <div id="pdf-content" class="bg-albion-dark pb-8 mt-4">
     
-    <!-- Header -->
-    <header class="border-b border-albion-border bg-albion-card/80 py-6 mb-8 mt-4">
-      <div class="max-w-5xl mx-auto px-4 text-center">
-        <h1 class="text-3xl md:text-4xl font-extrabold text-albion-gold tracking-wide uppercase">
-          ⚔️ Albion Loot Split
-        </h1>
-        <p class="text-sm text-gray-400 mt-1">Reporte de reparto de plata y botín</p>
+    <!-- Header: Título y Fecha -->
+    <header class="border-b border-albion-border bg-albion-card/80 py-6 mb-6">
+      <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
+        <input type="text" id="activityName" placeholder="Escribe el nombre de la actividad (Ej: Avaloniana T8.3)" 
+               class="text-2xl md:text-3xl font-extrabold text-albion-gold tracking-wide uppercase bg-transparent text-center border-b border-dashed border-gray-600 focus:outline-none focus:border-albion-gold w-full max-w-2xl placeholder-gray-500 mb-2">
+        <p class="text-sm text-gray-400 mt-1" id="currentDate">Fecha: Automática</p>
       </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <main class="max-w-7xl mx-auto px-4 grid grid-cols-1 xl:grid-cols-12 gap-8">
       
-      <!-- Columna Izquierda: Entradas y Subida de Imagen -->
-      <div class="lg:col-span-7 space-y-6">
+      <!-- Columna Izquierda: Configuración y Jugadores -->
+      <div class="xl:col-span-8 space-y-6">
         
-        <!-- Panel de Entradas -->
-        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg" data-html2canvas-ignore="false">
-          <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            💰 Datos de la Party
-          </h2>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Panel de Entradas Globales -->
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
+          <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">💰 Economía del Reparto</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-1">Valor Total del Botín</label>
-              <input type="number" id="totalLoot" placeholder="Ej: 15000000" min="0" oninput="calculateSplit()"
+              <label class="block text-sm font-medium text-gray-300 mb-1">Total del Botín (Silver)</label>
+              <input type="number" id="totalLoot" placeholder="0" min="0" oninput="calculateSplit()"
                      class="w-full bg-albion-dark border border-albion-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-albion-gold">
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-1">Costo de Reparaciones</label>
-              <input type="number" id="repairCost" placeholder="Ej: 450000" min="0" oninput="calculateSplit()"
+              <label class="block text-sm font-medium text-gray-300 mb-1">Reparaciones (Silver)</label>
+              <input type="number" id="repairCost" placeholder="0" min="0" oninput="calculateSplit()"
                      class="w-full bg-albion-dark border border-albion-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-albion-gold">
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-1">Cantidad de Miembros</label>
-              <input type="number" id="memberCount" value="5" min="1" oninput="calculateSplit()"
-                     class="w-full bg-albion-dark border border-albion-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-albion-gold">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-1">Impuesto / Caller (%)</label>
+              <label class="block text-sm font-medium text-gray-300 mb-1">Impuesto Gremio (%)</label>
               <input type="number" id="taxPercent" value="0" min="0" max="100" oninput="calculateSplit()"
                      class="w-full bg-albion-dark border border-albion-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-albion-gold">
             </div>
           </div>
         </section>
 
+        <!-- Gestión de Jugadores -->
+        <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">🛡️ Lista de Participantes</h2>
+            <button onclick="addPlayer()" class="no-pdf bg-albion-accent hover:bg-amber-600 text-white text-sm font-bold py-1.5 px-4 rounded transition">
+              + Añadir Jugador
+            </button>
+          </div>
+          
+          <!-- Encabezados de tabla para desktop -->
+          <div class="hidden sm:grid grid-cols-12 gap-2 mb-2 text-xs text-gray-400 uppercase font-bold px-2">
+            <div class="col-span-4">Nombre / Nick</div>
+            <div class="col-span-2 text-center" title="1 = Normal, 1.5 = Caller/Tanque">Rol (Mult)</div>
+            <div class="col-span-2 text-center" title="Porcentaje de tiempo participado">Asistencia %</div>
+            <div class="col-span-3 text-right" title="Valor de objetos que se quedó">Objetos (Descuento)</div>
+            <div class="col-span-1"></div>
+          </div>
+
+          <!-- Contenedor dinámico de jugadores -->
+          <div id="playersContainer" class="space-y-3">
+            <!-- Se llena con JS -->
+          </div>
+        </section>
+
         <!-- Subida de Capturas -->
         <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
-          <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
-            🖼️ Capturas de Respaldo
-          </h2>
-          
-          <!-- Botón de subida (se ocultará al imprimir gracias a una clase dinámica) -->
-          <label id="uploadBtn" class="border-2 border-dashed border-albion-border hover:border-albion-gold rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer transition-colors bg-albion-dark/50">
-            <span class="text-sm text-gray-300 text-center">Haz clic para añadir capturas de pantalla del cofre o reparación</span>
+          <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">🖼️ Capturas de Respaldo</h2>
+          <label id="uploadBtn" class="no-pdf border-2 border-dashed border-albion-border hover:border-albion-gold rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer transition-colors bg-albion-dark/50 mb-4">
+            <span class="text-sm text-gray-300 text-center">Haz clic para añadir capturas (Cofre, Reparaciones, etc.)</span>
             <input type="file" id="imageInput" accept="image/*" multiple class="hidden" onchange="handleImageUpload(event)">
           </label>
-
-          <!-- Galería de vistas previas -->
-          <div id="imageGallery" class="grid grid-cols-2 gap-3 mt-4"></div>
+          <div id="imageGallery" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
         </section>
+
       </div>
 
-      <!-- Columna Derecha: Resumen y Payout -->
-      <div class="lg:col-span-5 space-y-6">
+      <!-- Columna Derecha: Resumen y Payout Final -->
+      <div class="xl:col-span-4 space-y-6">
         
         <!-- Tarjeta de Resultados -->
         <section class="bg-albion-card p-6 rounded-xl border border-albion-gold/40 shadow-xl relative overflow-hidden">
-          <div class="absolute top-0 right-0 bg-albion-gold text-black font-bold text-xs uppercase px-3 py-1 rounded-bl-lg">
-            Resultado
-          </div>
-
           <h2 class="text-xl font-bold text-white mb-6">Resumen Financiero</h2>
-
           <div class="space-y-3 text-sm">
             <div class="flex justify-between pb-2 border-b border-albion-border">
               <span class="text-gray-400">Total Bruto:</span>
-              <span id="resTotal" class="font-semibold text-white">0 Silver</span>
+              <span id="resTotal" class="font-semibold text-white">0</span>
             </div>
             <div class="flex justify-between pb-2 border-b border-albion-border">
               <span class="text-gray-400">Reparaciones:</span>
-              <span id="resRepair" class="font-semibold text-red-400">- 0 Silver</span>
+              <span id="resRepair" class="font-semibold text-red-400">- 0</span>
             </div>
             <div class="flex justify-between pb-2 border-b border-albion-border">
-              <span class="text-gray-400">Impuesto / Caller:</span>
-              <span id="resTax" class="font-semibold text-amber-400">- 0 Silver</span>
+              <span class="text-gray-400">Impuesto:</span>
+              <span id="resTax" class="font-semibold text-amber-400">- 0</span>
             </div>
             <div class="flex justify-between pb-2 border-b border-albion-border">
               <span class="text-gray-300 font-medium">Neto a Repartir:</span>
-              <span id="resNet" class="font-bold text-green-400">0 Silver</span>
-            </div>
-          </div>
-
-          <!-- Pago por Persona -->
-          <div class="mt-6 bg-albion-dark p-4 rounded-lg border border-albion-border text-center">
-            <span class="text-xs text-gray-400 uppercase tracking-wider block mb-1">Pago por Persona</span>
-            <div id="resPerPerson" class="text-2xl sm:text-3xl font-extrabold text-albion-gold">
-              0 Silver
+              <span id="resNet" class="font-bold text-green-400 text-lg">0</span>
             </div>
           </div>
         </section>
 
-        <!-- Lista de Miembros / Check de Pago -->
+        <!-- Lista Final de Pagos (Payouts) -->
         <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg">
-          <h3 class="text-lg font-bold text-white mb-3">Lista de Pagos</h3>
-          <!-- Ajustamos la lista para que en el PDF se vea todo sin scroll -->
-          <div id="payoutList" class="space-y-2 max-h-none">
+          <h3 class="text-lg font-bold text-white mb-4 border-b border-albion-border pb-2">📋 Pagos Finales</h3>
+          <div id="payoutList" class="space-y-2 text-sm max-h-none">
+            <!-- Se llena con JS -->
           </div>
         </section>
-
       </div>
     </main>
-  </div> <!-- Fin de la zona a capturar -->
+  </div> 
 
   <script>
-    // Formatear números a formato legible (ej: 1,500,000)
+    // Establecer fecha actual
+    const today = new Date();
+    document.getElementById('currentDate').innerText = `Fecha: ${today.toLocaleDateString('es-CL')} ${today.getHours()}:${String(today.getMinutes()).padStart(2, '0')}`;
+
+    // Estado inicial de los jugadores
+    let players = [
+      { id: Date.now(), name: "Jugador 1", mult: 1, part: 100, buyout: 0 }
+    ];
+
+    // Utilidad de formato de moneda
     function formatSilver(val) {
-      return new Intl.NumberFormat('es-CL').format(Math.max(0, Math.round(val))) + ' Silver';
+      return new Intl.NumberFormat('es-CL').format(Math.max(0, Math.round(val)));
     }
+    function formatExact(val) {
+      return new Intl.NumberFormat('es-CL').format(Math.round(val));
+    }
+
+    // Renderizar los inputs de jugadores
+    function renderPlayersInput() {
+      const container = document.getElementById('playersContainer');
+      container.innerHTML = '';
+
+      players.forEach((p, index) => {
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-albion-dark p-3 sm:p-2 rounded border border-albion-border';
+        
+        row.innerHTML = `
+          <div class="sm:col-span-4 relative">
+            <span class="sm:hidden text-xs text-gray-500 absolute -top-2 left-2 bg-albion-dark px-1">Nombre</span>
+            <input type="text" value="${p.name}" oninput="updatePlayer(${p.id}, 'name', this.value)" placeholder="Nick" class="w-full bg-transparent text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
+          </div>
+          <div class="sm:col-span-2 relative">
+            <span class="sm:hidden text-xs text-gray-500 absolute -top-2 left-2 bg-albion-dark px-1">Rol (Ej: 1.5)</span>
+            <input type="number" value="${p.mult}" step="0.1" min="0" oninput="updatePlayer(${p.id}, 'mult', this.value)" class="w-full bg-transparent text-center text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
+          </div>
+          <div class="sm:col-span-2 relative">
+            <span class="sm:hidden text-xs text-gray-500 absolute -top-2 left-2 bg-albion-dark px-1">Asistencia %</span>
+            <input type="number" value="${p.part}" min="0" max="100" oninput="updatePlayer(${p.id}, 'part', this.value)" class="w-full bg-transparent text-center text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
+          </div>
+          <div class="sm:col-span-3 relative">
+            <span class="sm:hidden text-xs text-gray-500 absolute -top-2 left-2 bg-albion-dark px-1">Descuento (Silver)</span>
+            <input type="number" value="${p.buyout || ''}" placeholder="0" oninput="updatePlayer(${p.id}, 'buyout', this.value)" class="w-full bg-transparent text-right text-red-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
+          </div>
+          <div class="sm:col-span-1 flex justify-end sm:justify-center">
+            <button onclick="removePlayer(${p.id})" class="no-pdf text-red-500 hover:text-red-400 text-lg font-bold w-6 h-6 flex items-center justify-center rounded hover:bg-red-900/30 transition">✕</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+      calculateSplit();
+    }
+
+    function addPlayer() {
+      players.push({ id: Date.now(), name: `Jugador ${players.length + 1}`, mult: 1, part: 100, buyout: 0 });
+      renderPlayersInput();
+    }
+
+    function removePlayer(id) {
+      if(players.length > 1) {
+        players = players.filter(p => p.id !== id);
+        renderPlayersInput();
+      } else {
+        alert("Debe haber al menos un jugador en la party.");
+      }
+    }
+
+    function updatePlayer(id, field, value) {
+      const p = players.find(p => p.id === id);
+      if(p) {
+        p[field] = field === 'name' ? value : (parseFloat(value) || 0);
+        calculateSplit();
+      }
+    }
+
+    // Cálculos y Payout Final
+    let finalPayouts = []; 
+    let globalNet = 0;
 
     function calculateSplit() {
       const total = parseFloat(document.getElementById('totalLoot').value) || 0;
       const repair = parseFloat(document.getElementById('repairCost').value) || 0;
-      const members = parseInt(document.getElementById('memberCount').value) || 1;
       const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
 
       const afterRepair = Math.max(0, total - repair);
       const taxAmount = (afterRepair * taxPercent) / 100;
-      const netToSplit = Math.max(0, afterRepair - taxAmount);
-      const perPerson = members > 0 ? netToSplit / members : 0;
+      globalNet = Math.max(0, afterRepair - taxAmount);
 
+      // Calcular Peso Total (Puntos de participación)
+      let totalWeight = 0;
+      players.forEach(p => {
+        totalWeight += p.mult * (p.part / 100);
+      });
+
+      const valuePerWeight = totalWeight > 0 ? (globalNet / totalWeight) : 0;
+
+      // Actualizar Resumen
       document.getElementById('resTotal').innerText = formatSilver(total);
       document.getElementById('resRepair').innerText = '- ' + formatSilver(repair);
-      document.getElementById('resTax').innerText = '- ' + formatSilver(taxAmount) + ` (${taxPercent}%)`;
-      document.getElementById('resNet').innerText = formatSilver(netToSplit);
-      document.getElementById('resPerPerson').innerText = formatSilver(perPerson);
+      document.getElementById('resTax').innerText = '- ' + formatSilver(taxAmount);
+      document.getElementById('resNet').innerText = formatSilver(globalNet);
 
+      // Calcular pago individual
       const listContainer = document.getElementById('payoutList');
       listContainer.innerHTML = '';
+      finalPayouts = [];
 
-      for (let i = 1; i <= members; i++) {
+      players.forEach(p => {
+        const weight = p.mult * (p.part / 100);
+        const grossPayout = weight * valuePerWeight;
+        const netPayout = grossPayout - p.buyout;
+
+        finalPayouts.push({ name: p.name, net: netPayout, buyout: p.buyout });
+
+        const isOwed = netPayout < 0; // Si es negativo, debe dinero
+        const textClass = isOwed ? 'text-red-400 font-bold' : 'text-albion-gold font-bold';
+        const formattedAmount = isOwed ? `DEBE ${formatExact(Math.abs(netPayout))}` : formatExact(netPayout);
+
         const row = document.createElement('div');
-        row.className = 'flex items-center justify-between bg-albion-dark p-2.5 rounded border border-albion-border text-sm';
+        row.className = 'flex justify-between items-center py-2 border-b border-albion-border/50 last:border-0';
         row.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="text-gray-300">Jugador ${i}</span>
+          <span class="text-gray-200 truncate pr-2">${p.name}</span>
+          <div class="text-right flex flex-col">
+            <span class="${textClass}">${formattedAmount}</span>
+            ${p.buyout > 0 ? `<span class="text-[10px] text-gray-500">Items: -${formatExact(p.buyout)}</span>` : ''}
           </div>
-          <span class="font-bold text-albion-gold">${formatSilver(perPerson)}</span>
         `;
         listContainer.appendChild(row);
-      }
+      });
     }
 
-    // Manejador de subida de imágenes
+    // Exportar a Discord
+    function copyToDiscord() {
+      const actName = document.getElementById('activityName').value || 'Actividad sin nombre';
+      const total = parseFloat(document.getElementById('totalLoot').value) || 0;
+      const repair = parseFloat(document.getElementById('repairCost').value) || 0;
+      const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
+      
+      let text = `⚔️ **REPARTO DE LOOT: ${actName}** 📅 ${today.toLocaleDateString('es-CL')}\n`;
+      text += `💰 **Total:** ${formatSilver(total)} | 🛠️ **Rep:** -${formatSilver(repair)} | 👑 **Tax (${taxPercent}%):** -${formatSilver(Math.max(0, total - repair)*taxPercent/100)}\n`;
+      text += `✅ **Neto Repartido:** ${formatSilver(globalNet)}\n\n`;
+      text += `**PAGOS:**\n`;
+      text += `\`\`\`\n`;
+      
+      finalPayouts.forEach(p => {
+        if(p.net >= 0) {
+          text += `@${p.name} : ${formatExact(p.net)}\n`;
+        } else {
+          text += `@${p.name} : DEBE ${formatExact(Math.abs(p.net))}\n`;
+        }
+      });
+      text += `\`\`\``;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert('¡Resumen copiado al portapapeles! Listo para pegar en Discord.');
+      });
+    }
+
+    // Imágenes locales
     function handleImageUpload(event) {
       const files = event.target.files;
       const gallery = document.getElementById('imageGallery');
-
       for (const file of files) {
         if (!file.type.startsWith('image/')) continue;
-
         const reader = new FileReader();
         reader.onload = function(e) {
           const card = document.createElement('div');
-          // En vez de un aspect-ratio fijo, dejamos que la imagen tome su forma para que se vea bien en el PDF
           card.className = 'relative border border-albion-border rounded p-1 bg-black';
           card.innerHTML = `
             <img src="${e.target.result}" class="w-full h-auto rounded object-contain">
-            <button onclick="this.parentElement.remove()" class="delete-btn absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition">
-              ✕
-            </button>
+            <button onclick="this.parentElement.remove()" class="no-pdf absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition">✕</button>
           `;
           gallery.appendChild(card);
         };
@@ -218,37 +333,32 @@
       }
     }
 
-    // Función para generar y descargar el PDF
+    // Descargar PDF
     function downloadPDF() {
-      // 1. Ocultar elementos interactivos que no queremos en el PDF (botón de subir imagen y botones de borrar)
-      document.getElementById('uploadBtn').style.display = 'none';
-      document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = 'none');
+      const actName = document.getElementById('activityName').value || 'Reparto';
+      
+      // Ocultar botones e interfaces no deseadas en el PDF
+      const hideElements = document.querySelectorAll('.no-pdf');
+      hideElements.forEach(el => el.style.display = 'none');
       
       const element = document.getElementById('pdf-content');
       
-      // 2. Configurar el PDF (Fondo oscuro, calidad alta)
       const opt = {
-        margin:       [10, 10, 10, 10], // márgenes en mm
-        filename:     'Reparto_Albion_Online.pdf',
+        margin:       [10, 10, 10, 10],
+        filename:     `Payout_${actName.replace(/\s+/g, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-          scale: 2, 
-          useCORS: true, 
-          backgroundColor: '#121418' // Mantiene el color oscuro de Albion de fondo
-        },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#121418' },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      // 3. Generar PDF y luego restaurar la vista
       html2pdf().set(opt).from(element).save().then(() => {
-        // Restaurar los botones de interfaz
-        document.getElementById('uploadBtn').style.display = 'flex';
-        document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = 'flex');
+        // Restaurar elementos (si usaban flex o block, restaurar a cadena vacía hereda su css natural)
+        hideElements.forEach(el => el.style.display = '');
       });
     }
 
-    // Inicializar cálculo en carga
-    calculateSplit();
+    // Iniciar app
+    renderPlayersInput();
   </script>
 </body>
 </html>
