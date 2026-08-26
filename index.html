@@ -78,7 +78,7 @@
       font-weight: 600;
     }
 
-    input, select {
+    input, select, textarea {
       background-color: var(--input-bg);
       border: 1px solid var(--card-border);
       color: var(--text-main);
@@ -87,7 +87,7 @@
       font-size: 0.9rem;
     }
 
-    input:focus {
+    input:focus, textarea:focus {
       outline: none;
       border-color: var(--primary);
     }
@@ -99,14 +99,15 @@
       border: none;
       font-weight: 600;
       font-size: 0.9rem;
-      transition: background 0.2s;
+      transition: background 0.2s, opacity 0.2s;
     }
 
+    .btn:hover { opacity: 0.9; }
     .btn-primary { background-color: var(--primary); color: #fff; }
-    .btn-primary:hover { background-color: var(--primary-hover); }
     .btn-danger { background-color: var(--danger); color: #fff; }
     .btn-success { background-color: var(--success); color: #1e1e1e; }
     .btn-warning { background-color: var(--warning); color: #1e1e1e; }
+    .btn-secondary { background-color: var(--card-border); color: #fff; }
 
     .actions-bar {
       display: flex;
@@ -166,25 +167,79 @@
     .metric-title { font-size: 0.75rem; color: var(--text-muted); }
     .metric-value { font-size: 1.1rem; font-weight: bold; margin-top: 4px; }
 
+    .alert-box {
+      background-color: rgba(191, 97, 106, 0.15);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      display: none;
+    }
+
     .evidence-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 12px;
       margin-top: 12px;
     }
 
+    .evidence-card {
+      position: relative;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+    }
+
     .evidence-thumb {
       width: 100%;
-      height: 140px;
+      height: 120px;
       object-fit: cover;
-      border-radius: 4px;
+      display: block;
+    }
+
+    .btn-delete-img {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(191, 97, 106, 0.9);
+      color: #fff;
+      border: none;
+      padding: 3px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.7rem;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 24px;
+      width: 90%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     /* Print / PDF overrides */
     .html2pdf__page-break { page-break-before: always; }
     .no-export { display: block; }
     .export-mode .no-export { display: none !important; }
+    .export-mode .btn-delete-img { display: none !important; }
   </style>
 </head>
 <body>
@@ -192,15 +247,18 @@
 <div class="container" id="report-content">
 
   <div class="card">
-    <h1>⚔️ Albion Online - Payouts Pro</h1>
-    <div class="grid-form">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <h1>⚔️ Albion Online - Payouts Pro</h1>
+      <button class="btn btn-secondary no-export" style="font-size: 0.75rem;" onclick="resetSession()">🔄 Reiniciar Todo</button>
+    </div>
+    <div class="grid-form" style="margin-top: 12px;">
       <div class="form-group">
         <label for="party-name">Actividad / Nombre de Party</label>
-        <input type="text" id="party-name" value="Gank / Roaming Session">
+        <input type="text" id="party-name" value="Gank / Roaming Session" oninput="saveState()">
       </div>
       <div class="form-group">
         <label for="party-date">Fecha</label>
-        <input type="date" id="party-date">
+        <input type="date" id="party-date" onchange="saveState()">
       </div>
     </div>
   </div>
@@ -227,6 +285,7 @@
     <h2>2. Participantes</h2>
     <div class="actions-bar no-export" style="margin-bottom: 12px;">
       <button class="btn btn-primary" onclick="addPlayer()">+ Añadir Jugador</button>
+      <button class="btn btn-secondary" onclick="openBulkModal()">📥 Importar Lista (Paste)</button>
     </div>
     <div style="overflow-x: auto;">
       <table>
@@ -266,6 +325,9 @@
         <div class="metric-value" id="disp-base-split">0</div>
       </div>
     </div>
+    <div class="alert-box" id="deficit-alert">
+      ⚠️ <strong>Atención:</strong> Las deducciones (Reparaciones + Tax + Re-equipos) superan el valor del Botín Total por <span id="deficit-amount">0</span> Silver. No hay saldo positivo para repartir base.
+    </div>
   </div>
 
   <div class="card">
@@ -293,6 +355,7 @@
     <h2>5. Respaldo Visual (Capturas de Pantalla)</h2>
     <div class="no-export" style="margin-bottom: 12px;">
       <input type="file" id="evidence-input" accept="image/*" multiple onchange="handleImageUpload(event)">
+      <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 8px;">(Auto-optimizadas para PDF)</span>
     </div>
     <div class="evidence-grid" id="evidence-gallery">
       <!-- Inyección dinámica -->
@@ -306,13 +369,24 @@
 
 </div>
 
+<!-- Modal Paste Nicks -->
+<div class="modal-overlay" id="bulk-modal">
+  <div class="modal-box">
+    <h3>Importar Participantes</h3>
+    <p style="font-size: 0.8rem; color: var(--text-muted);">Pega la lista de nicks de Discord o el juego (uno por línea):</p>
+    <textarea id="bulk-nicks" rows="8" placeholder="Nick1&#10;Nick2&#10;Nick3"></textarea>
+    <div class="actions-bar" style="justify-content: flex-end;">
+      <button class="btn btn-secondary" onclick="closeBulkModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="processBulkNicks()">Agregar Nicks</button>
+    </div>
+  </div>
+</div>
+
 <script>
   let players = [];
-  let evidenceImages = [];
+  let evidenceImages = []; // Base64 strings
 
-  // Init
-  document.getElementById('party-date').valueAsDate = new Date();
-  addPlayer("Jugador 1");
+  const STORAGE_KEY = "albion_payouts_pro_state";
 
   function sanitize(num) {
     const val = Number(num);
@@ -321,6 +395,65 @@
 
   function formatSilver(val) {
     return Math.round(val).toLocaleString('es-CL');
+  }
+
+  // Persistencia
+  function saveState() {
+    const state = {
+      partyName: document.getElementById('party-name').value,
+      partyDate: document.getElementById('party-date').value,
+      totalLoot: document.getElementById('total-loot').value,
+      repairs: document.getElementById('repairs').value,
+      guildTax: document.getElementById('guild-tax').value,
+      players: players,
+      evidenceImages: evidenceImages
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.warn("Storage quota exceeded", e);
+    }
+  }
+
+  function loadState() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      document.getElementById('party-date').valueAsDate = new Date();
+      addPlayer("Jugador 1");
+      return;
+    }
+
+    try {
+      const state = JSON.parse(raw);
+      document.getElementById('party-name').value = state.partyName || "Gank / Roaming Session";
+      document.getElementById('party-date').value = state.partyDate || new Date().toISOString().split('T')[0];
+      document.getElementById('total-loot').value = state.totalLoot || 0;
+      document.getElementById('repairs').value = state.repairs || 0;
+      document.getElementById('guild-tax').value = state.guildTax || 0;
+      players = state.players && state.players.length > 0 ? state.players : [];
+      evidenceImages = state.evidenceImages || [];
+
+      if (players.length === 0) addPlayer("Jugador 1");
+      renderPlayersTable();
+      renderGallery();
+      calculateAll();
+    } catch (e) {
+      console.error("Error al cargar estado", e);
+      addPlayer("Jugador 1");
+    }
+  }
+
+  function resetSession() {
+    if (!confirm("¿Deseas reiniciar y vaciar todos los campos del reparto actual?")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    players = [];
+    evidenceImages = [];
+    document.getElementById('total-loot').value = 0;
+    document.getElementById('repairs').value = 0;
+    document.getElementById('guild-tax').value = 0;
+    document.getElementById('party-name').value = "Gank / Roaming Session";
+    document.getElementById('party-date').valueAsDate = new Date();
+    addPlayer("Jugador 1");
   }
 
   function addPlayer(defaultName = "") {
@@ -334,12 +467,14 @@
     });
     renderPlayersTable();
     calculateAll();
+    saveState();
   }
 
   function removePlayer(id) {
     players = players.filter(p => p.id !== id);
     renderPlayersTable();
     calculateAll();
+    saveState();
   }
 
   function updatePlayerField(id, field, value) {
@@ -352,6 +487,7 @@
       player[field] = value;
     }
     calculateAll();
+    saveState();
   }
 
   function renderPlayersTable() {
@@ -373,7 +509,10 @@
 
   // Listeners economía
   ['total-loot', 'repairs', 'guild-tax'].forEach(id => {
-    document.getElementById(id).addEventListener('input', calculateAll);
+    document.getElementById(id).addEventListener('input', () => {
+      calculateAll();
+      saveState();
+    });
   });
 
   function calculateAll() {
@@ -384,10 +523,19 @@
     const totalRegearPool = players.reduce((sum, p) => sum + p.regear, 0);
     const taxAmount = (totalLoot * taxPercent) / 100;
     
-    // Total a repartir = Loot - Reparaciones - Tax - Bolsa de re-equipos
-    const distributableNet = Math.max(0, totalLoot - repairs - taxAmount - totalRegearPool);
+    const rawNet = totalLoot - repairs - taxAmount - totalRegearPool;
+    const distributableNet = Math.max(0, rawNet);
     const totalPlayersCount = players.length;
     const baseSplit = totalPlayersCount > 0 ? distributableNet / totalPlayersCount : 0;
+
+    // Alerta de déficit
+    const alertBox = document.getElementById('deficit-alert');
+    if (rawNet < 0) {
+      alertBox.style.display = "block";
+      document.getElementById('deficit-amount').innerText = formatSilver(Math.abs(rawNet));
+    } else {
+      alertBox.style.display = "none";
+    }
 
     // Actualizar Resumen
     document.getElementById('disp-tax').innerText = formatSilver(taxAmount);
@@ -424,19 +572,102 @@
     });
   }
 
+  // Modales Fast Paste
+  function openBulkModal() {
+    document.getElementById('bulk-modal').style.display = "flex";
+  }
+
+  function closeBulkModal() {
+    document.getElementById('bulk-modal').style.display = "none";
+    document.getElementById('bulk-nicks').value = "";
+  }
+
+  function processBulkNicks() {
+    const raw = document.getElementById('bulk-nicks').value;
+    const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+    
+    // Si sólo había un default vacío sin datos, lo reemplazamos
+    if (players.length === 1 && players[0].name === "Jugador 1" && players[0].buyout === 0 && players[0].regear === 0) {
+      players = [];
+    }
+
+    lines.forEach(nick => {
+      players.push({
+        id: Date.now() + Math.random().toString(36).substr(2, 4),
+        name: nick,
+        buyout: 0,
+        regear: 0,
+        killboard: ""
+      });
+    });
+
+    renderPlayersTable();
+    calculateAll();
+    saveState();
+    closeBulkModal();
+  }
+
+  // Manejo de Imágenes optimizadas vía Canvas
   function handleImageUpload(e) {
     const files = Array.from(e.target.files);
-    const gallery = document.getElementById('evidence-gallery');
+    if (!files.length) return;
 
     files.forEach(file => {
       const reader = new FileReader();
       reader.onload = (event) => {
-        const img = document.createElement('img');
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+          evidenceImages.push(compressedBase64);
+          renderGallery();
+          saveState();
+        };
         img.src = event.target.result;
-        img.className = 'evidence-thumb';
-        gallery.appendChild(img);
       };
       reader.readAsDataURL(file);
+    });
+
+    e.target.value = "";
+  }
+
+  function removeImage(index) {
+    evidenceImages.splice(index, 1);
+    renderGallery();
+    saveState();
+  }
+
+  function renderGallery() {
+    const gallery = document.getElementById('evidence-gallery');
+    gallery.innerHTML = "";
+
+    evidenceImages.forEach((src, idx) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = "evidence-card";
+      wrapper.innerHTML = `
+        <img src="${src}" class="evidence-thumb" alt="Respaldo ${idx + 1}">
+        <button class="btn-delete-img" onclick="removeImage(${idx})">✕</button>
+      `;
+      gallery.appendChild(wrapper);
     });
   }
 
@@ -495,6 +726,9 @@
       element.classList.remove('export-mode');
     });
   }
+
+  // Arrancar aplicación
+  loadState();
 </script>
 
 </body>
