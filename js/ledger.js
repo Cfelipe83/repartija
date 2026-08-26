@@ -33,11 +33,11 @@ export function renderLedgerView(ledgerSessions) {
           : (item.netBalance < 0 ? `<span class="status-badge status-pay">DEBE: ${formatSilver(Math.abs(item.netBalance))}</span>` : `<span class="status-badge status-zero">SALDADO (0)</span>`);
 
         tr.innerHTML = `
-          <td><strong>${item.displayName}</strong></td>
-          <td style="font-size: 1rem; font-weight: bold;">${formatSilver(item.netBalance)} Silver</td>
-          <td>${item.pendingParties} partida(s) pendiente(s)</td>
-          <td>${statusBadge}</td>
-        `;
+  <td><strong class="player-name-highlight">${item.displayName}</strong></td>
+  <td style="font-size: 1rem; font-weight: bold;">${formatSilver(item.netBalance)} Silver</td>
+  <td>${item.pendingParties} partida(s) pendiente(s)</td>
+  <td>${statusBadge}</td>
+`;
         consTbody.appendChild(tr);
       });
     }
