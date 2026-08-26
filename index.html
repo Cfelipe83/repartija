@@ -75,24 +75,22 @@
         </section>
 
         <section class="bg-albion-card p-6 rounded-xl border border-albion-border shadow-lg overflow-x-auto">
-          <div class="flex justify-between items-center mb-4 min-w-[750px]">
+          <div class="flex justify-between items-center mb-4 min-w-[700px]">
             <h2 class="text-xl font-bold text-white flex items-center gap-2">🛡️ Lista de Participantes</h2>
             <button onclick="addPlayer()" class="no-pdf bg-albion-accent hover:bg-amber-600 text-white text-sm font-bold py-1.5 px-4 rounded transition">
               + Añadir Jugador
             </button>
           </div>
           
-          <div class="hidden md:grid grid-cols-12 gap-2 mb-2 text-xs text-gray-400 uppercase font-bold px-2 min-w-[750px]">
-            <div class="col-span-3">Nombre</div>
-            <div class="col-span-1 text-center">Rol</div>
-            <div class="col-span-1 text-center">% Asist.</div>
+          <div class="hidden md:grid grid-cols-12 gap-2 mb-2 text-xs text-gray-400 uppercase font-bold px-2 min-w-[700px]">
+            <div class="col-span-5">Nombre</div>
             <div class="col-span-2 text-right">Descuento</div>
             <div class="col-span-2 text-right text-green-400">Re-equipo</div>
             <div class="col-span-2 text-center text-blue-400">Killboard (Link)</div>
             <div class="col-span-1"></div>
           </div>
 
-          <div id="playersContainer" class="space-y-3 min-w-[750px]">
+          <div id="playersContainer" class="space-y-3 min-w-[700px]">
             <!-- JS Inject -->
           </div>
         </section>
@@ -148,8 +146,9 @@
   <script>
     document.getElementById('activityDate').value = new Date().toISOString().split('T')[0];
 
+    // Ahora los jugadores solo tienen su id, nombre, descuento (buyout), reequipo y link.
     let players = [
-      { id: Date.now(), name: "Jugador 1", mult: 1, part: 100, buyout: 0, regear: 0, link: "" }
+      { id: Date.now(), name: "Jugador 1", buyout: 0, regear: 0, link: "" }
     ];
 
     function formatSilver(val) {
@@ -168,14 +167,8 @@
         row.className = 'grid grid-cols-1 md:grid-cols-12 gap-2 items-center bg-albion-dark p-3 md:p-2 rounded border border-albion-border';
         
         row.innerHTML = `
-          <div class="md:col-span-3">
+          <div class="md:col-span-5">
             <input type="text" value="${p.name}" oninput="updatePlayer(${p.id}, 'name', this.value)" placeholder="Nick" class="w-full bg-transparent text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
-          </div>
-          <div class="md:col-span-1">
-            <input type="number" value="${p.mult}" step="0.1" min="0" oninput="updatePlayer(${p.id}, 'mult', this.value)" class="w-full bg-transparent text-center text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
-          </div>
-          <div class="md:col-span-1">
-            <input type="number" value="${p.part}" min="0" max="100" oninput="updatePlayer(${p.id}, 'part', this.value)" class="w-full bg-transparent text-center text-white focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
           <div class="md:col-span-2">
             <input type="number" value="${p.buyout || ''}" placeholder="0" oninput="updatePlayer(${p.id}, 'buyout', this.value)" class="w-full bg-transparent text-right text-red-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
@@ -183,9 +176,8 @@
           <div class="md:col-span-2">
             <input type="number" value="${p.regear || ''}" placeholder="0" oninput="updatePlayer(${p.id}, 'regear', this.value)" class="w-full bg-transparent text-right text-green-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
           </div>
-          <div class="md:col-span-2 flex items-center gap-1">
-            <input type="url" value="${p.link || ''}" placeholder="URL" oninput="updatePlayer(${p.id}, 'link', this.value)" class="w-full bg-transparent text-xs text-blue-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1">
-            <button onclick="autoFetchDeath(${p.id}, '${p.name}', event)" title="Buscar última muerte" class="no-pdf bg-gray-700 hover:bg-gray-600 text-white p-1 rounded text-xs transition">🔍</button>
+          <div class="md:col-span-2">
+            <input type="url" value="${p.link || ''}" placeholder="URL Manual" oninput="updatePlayer(${p.id}, 'link', this.value)" class="w-full bg-transparent text-xs text-blue-400 focus:outline-none border-b border-gray-600 focus:border-albion-gold px-1 py-1 text-center">
           </div>
           <div class="md:col-span-1 flex justify-end md:justify-center">
             <button onclick="removePlayer(${p.id})" class="no-pdf text-red-500 hover:text-red-400 text-lg font-bold w-6 h-6 rounded hover:bg-red-900/30 transition">✕</button>
@@ -197,7 +189,7 @@
     }
 
     function addPlayer() {
-      players.push({ id: Date.now(), name: `Jugador ${players.length + 1}`, mult: 1, part: 100, buyout: 0, regear: 0, link: "" });
+      players.push({ id: Date.now(), name: `Jugador ${players.length + 1}`, buyout: 0, regear: 0, link: "" });
       renderPlayersInput();
     }
 
@@ -216,59 +208,6 @@
       }
     }
 
-    // Buscador automático de muertes a través de la API oficial de Albion y proxy CORS
-    async function autoFetchDeath(id, playerName, event) {
-      if (!playerName || playerName.trim() === '' || playerName.startsWith('Jugador')) {
-        alert("Escribe el Nick real del jugador para buscar.");
-        return;
-      }
-
-      const btn = event.currentTarget;
-      btn.innerText = "⏳";
-      btn.disabled = true;
-
-      try {
-        // 1. Obtener ID del jugador
-        const searchUrl = `https://gameinfo.albiononline.com/api/gameinfo/search?q=${playerName}`;
-        const proxySearch = `https://api.allorigins.win/raw?url=${encodeURIComponent(searchUrl)}`;
-        const searchRes = await fetch(proxySearch);
-        const searchData = await searchRes.json();
-
-        if (!searchData.players || searchData.players.length === 0) {
-          alert(`No se encontró el jugador "${playerName}".`);
-          btn.innerText = "🔍";
-          btn.disabled = false;
-          return;
-        }
-
-        const exactMatch = searchData.players.find(p => p.Name.toLowerCase() === playerName.toLowerCase()) || searchData.players[0];
-        
-        // 2. Obtener muertes
-        const deathsUrl = `https://gameinfo.albiononline.com/api/gameinfo/players/${exactMatch.Id}/deaths`;
-        const proxyDeaths = `https://api.allorigins.win/raw?url=${encodeURIComponent(deathsUrl)}`;
-        const deathsRes = await fetch(proxyDeaths);
-        const deathsData = await deathsRes.json();
-
-        if (!deathsData || deathsData.length === 0) {
-          alert(`No hay muertes recientes para ${exactMatch.Name}.`);
-          btn.innerText = "🔍";
-          btn.disabled = false;
-          return;
-        }
-
-        // 3. Obtener el link del Killboard oficial
-        const killUrl = `https://albiononline.com/killboard/kill/${deathsData[0].EventId}`;
-        updatePlayer(id, 'link', killUrl);
-        renderPlayersInput(); 
-
-      } catch (error) {
-        console.error(error);
-        alert("Hubo un error de conexión con Albion API.");
-        btn.innerText = "🔍";
-        btn.disabled = false;
-      }
-    }
-
     let finalPayouts = []; 
     let globalNet = 0;
 
@@ -283,9 +222,8 @@
       
       globalNet = Math.max(0, afterRepair - taxAmount - totalRegears);
 
-      let totalWeight = 0;
-      players.forEach(p => { totalWeight += p.mult * (p.part / 100); });
-      const valuePerWeight = totalWeight > 0 ? (globalNet / totalWeight) : 0;
+      // Ahora el valor se divide parejo por la cantidad de jugadores en la lista
+      const valuePerPlayer = players.length > 0 ? (globalNet / players.length) : 0;
 
       document.getElementById('resTotal').innerText = formatSilver(total);
       document.getElementById('resRepair').innerText = '- ' + formatSilver(repair);
@@ -298,7 +236,8 @@
       finalPayouts = [];
 
       players.forEach(p => {
-        const splitShare = (p.mult * (p.part / 100)) * valuePerWeight;
+        // La porción base es igual para todos
+        const splitShare = valuePerPlayer;
         const netPayout = splitShare - p.buyout + p.regear;
 
         finalPayouts.push({ name: p.name, net: netPayout, buyout: p.buyout, regear: p.regear, link: p.link });
@@ -336,15 +275,10 @@
       const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
       const totalRegears = players.reduce((sum, p) => sum + p.regear, 0);
       
-      let text = `⚔️ **REPARTO DE LOOT: ${actName}** 📅 ${actDate}
-`;
-      text += `💰 **Total:** ${formatSilver(total)} | 🛠️ **Rep:** -${formatSilver(repair)} | 👑 **Tax:** -${formatSilver(Math.max(0, total - repair)*taxPercent/100)} | ⚰️ **Reequipos:** -${formatSilver(totalRegears)}
-`;
-      text += `✅ **Neto Repartido:** ${formatSilver(globalNet)}
-
-`;
-      text += `**PAGOS:**
-`;
+      let text = `⚔️ **REPARTO DE LOOT: ${actName}** 📅 ${actDate}\n`;
+      text += `💰 **Total:** ${formatSilver(total)} | 🛠️ **Rep:** -${formatSilver(repair)} | 👑 **Tax:** -${formatSilver(Math.max(0, total - repair)*taxPercent/100)} | ⚰️ **Reequipos:** -${formatSilver(totalRegears)}\n`;
+      text += `✅ **Neto Repartido:** ${formatSilver(globalNet)}\n\n`;
+      text += `**PAGOS:**\n`;
       
       finalPayouts.forEach(p => {
         let details = [];
@@ -355,11 +289,9 @@
         let linkString = p.link ? ` - [Muerte](${p.link})` : '';
         
         if(p.net >= 0) {
-          text += `**@${p.name}** : ${formatExact(p.net)}${detailString}${linkString}
-`;
+          text += `**@${p.name}** : ${formatExact(p.net)}${detailString}${linkString}\n`;
         } else {
-          text += `**@${p.name}** : DEBE ${formatExact(Math.abs(p.net))}${detailString}${linkString}
-`;
+          text += `**@${p.name}** : DEBE ${formatExact(Math.abs(p.net))}${detailString}${linkString}\n`;
         }
       });
 
