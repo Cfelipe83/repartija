@@ -4,11 +4,13 @@ import { createPlayer, renderPlayersTable } from './players.js';
 import { calculateEconomics, renderEconomicsView } from './calc.js';
 import { renderLedgerView } from './ledger.js';
 import { exportPDFDocument } from './pdf.js';
+import { renderCityBonuses } from './cities.js';
 
 let chests = [];
 let players = [];
 let evidenceImages = [];
 let ledgerSessions = [];
+let currentCityFilter = "all";
 
 function init() {
   ledgerSessions = loadState(LEDGER_KEY) || [];
@@ -366,6 +368,37 @@ window.copyDiscordMarkdown = () => {
   }).catch(() => {
     alert("Error al copiar portapapeles.");
   });
+};
+
+// Actualiza switchTab para manejar la pestaña 3
+window.switchTab = (tabId) => {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+  
+  if (tabId === 'tab-calc') {
+    document.getElementById('tab-btn-calc').classList.add('active');
+    document.getElementById('tab-calc').classList.add('active');
+  } else if (tabId === 'tab-ledger') {
+    document.getElementById('tab-btn-ledger').classList.add('active');
+    document.getElementById('tab-ledger').classList.add('active');
+    renderLedgerView(ledgerSessions);
+  } else if (tabId === 'tab-cities') {
+    document.getElementById('tab-btn-cities').classList.add('active');
+    document.getElementById('tab-cities').classList.add('active');
+    renderCityBonuses(currentCityFilter, document.getElementById('city-search')?.value || "");
+  }
+};
+
+window.setCityFilter = (city, btnEl) => {
+  currentCityFilter = city;
+  document.querySelectorAll('.city-filter-bar button').forEach(b => b.classList.remove('active-city'));
+  if (btnEl) btnEl.classList.add('active-city');
+  renderCityBonuses(currentCityFilter, document.getElementById('city-search')?.value || "");
+};
+
+window.filterCityBonuses = () => {
+  const query = document.getElementById('city-search')?.value || "";
+  renderCityBonuses(currentCityFilter, query);
 };
 
 // Arrancar App

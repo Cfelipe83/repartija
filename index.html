@@ -31,6 +31,7 @@
   <div class="tabs-nav no-export">
     <button class="tab-btn active" id="tab-btn-calc" onclick="window.switchTab('tab-calc')">⚔️ Calculadora de Reparto</button>
     <button class="tab-btn" id="tab-btn-ledger" onclick="window.switchTab('tab-ledger')">📜 Libro Contable (Deudas & Pagos)</button>
+    <button class="tab-btn" id="tab-btn-cities" onclick="window.switchTab('tab-cities')">🏛️ Bonos de Ciudades (RRR)</button>
   </div>
 
   <!-- PESTAÑA 1: CALCULADORA -->
@@ -209,8 +210,73 @@
       <h2>📁 Historial de Partys Guardadas & Auditoría</h2>
       <div id="ledger-sessions-container" style="display: flex; flex-direction: column; gap: 16px; margin-top: 10px;"></div>
     </div>
+
+    <!-- PESTAÑA 3: BONOS DE CIUDADES & RRR -->
+  <div class="tab-pane" id="tab-cities">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2>🏛️ Bonos de Producción y Retorno de Recursos (RRR)</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
+            Consulta las especialidades de refinado, crafteo y las tasas de devolución de recursos de cada ciudad real y Brecilien.
+          </p>
+        </div>
+        <div class="actions-bar">
+          <input type="text" id="city-search" placeholder="🔍 Buscar ítem o recurso..." oninput="window.filterCityBonuses()" style="width: 220px;">
+        </div>
+      </div>
+
+      <!-- Métricas Informativas de RRR -->
+      <div class="summary-metrics" style="margin-top: 16px;">
+        <div class="metric-box" style="border-top-color: var(--cyan);">
+          <div class="metric-title">Ciudad Real con Bono</div>
+          <div class="metric-value">24.8% <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-secondary);">(Sin Foco)</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">47.9% con Foco</div>
+        </div>
+        <div class="metric-box" style="border-top-color: var(--warning);">
+          <div class="metric-title">Ciudad Real sin Bono</div>
+          <div class="metric-value">15.2% <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-secondary);">(Sin Foco)</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">43.5% con Foco</div>
+        </div>
+        <div class="metric-box" style="border-top-color: var(--primary);">
+          <div class="metric-title">Islas / Escondites (Básico)</div>
+          <div class="metric-value">0.0% <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-secondary);">(Sin Foco)</span></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">37.1% con Foco</div>
+        </div>
+      </div>
+
+      <!-- Filtros por Ciudad -->
+      <div class="city-filter-bar no-export" style="margin-top: 18px;">
+        <button class="btn btn-secondary active-city" onclick="window.setCityFilter('all', this)">Todas</button>
+        <button class="btn btn-secondary" onclick="window.setCityFilter('Martlock', this)">Martlock</button>
+        <button class="btn btn-secondary" onclick="window.setCityFilter('Bridgewatch', this)">Bridgewatch</button>
+        <button class="btn btn-secondary" onclick="window.setCityFilter('Lymhurst', this)">Lymhurst</button>
+        <button class="btn btn-secondary" onclick="window.setCityFilter('Fort Sterling', this)">Fort Sterling</button>
+        <button class="btn btn-secondary" onclick="window.setCityFilter('Thetford', this)">Thetford</button>
+        <button class="btn btn-secondary" onclick="window.setCityFilter('Caerleon', this)">Caerleon</button>
+        <button class="btn btn-secondary" onclick="window.setCityFilter('Brecilien', this)">Brecilien</button>
+      </div>
+
+      <!-- Tabla de Ciudades y Bonos -->
+      <div style="overflow-x: auto; margin-top: 12px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Ciudad</th>
+              <th>Refinado Especializado (+40% Efic.)</th>
+              <th>Crafteo Especializado (+15% Efic.)</th>
+              <th>RRR Base (Sin Foco)</th>
+              <th>RRR con Foco</th>
+            </tr>
+          </thead>
+          <tbody id="city-bonus-rows">
+            <!-- Inyección dinámica -->
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-<!-- Agregar justo antes del cierre de </div> de class="container" -->
+  </div>
   <footer class="app-footer no-export">
     Diseñado por <strong class="designer-tag">KARPLOX</strong> &nbsp;•&nbsp; Albion Online - Payouts Pro
   </footer>

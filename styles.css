@@ -561,3 +561,21 @@ tr:last-child td {
   font-weight: 700;
   letter-spacing: 0.05em;
 }
+
+/* Barra de filtros de Ciudades */
+.city-filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.city-filter-bar .btn {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.city-filter-bar .btn.active-city {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
